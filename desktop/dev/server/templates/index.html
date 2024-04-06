@@ -128,7 +128,7 @@
                 </div>      
                 <div class="flex justify-between mb-4 spacing-4" v-if="selected_num != '' ">
                   <h1>Recovery Ratio</h1>
-                  <label >[[ (((1/(numbers[selected_num]-1))/recovery_rolls)+1).toFixed(4) ]]</label>
+                  <label >[[ ((((1/(numbers[selected_num]-1))+1)/recovery_rolls)).toFixed(4) ]]</label>
                 </div>
               </div>
               <div class="flex flex-col w-full">
@@ -215,7 +215,7 @@
             </div>      
             <div class="flex justify-between mb-4 spacing-4" v-if="selected_num != '' ">
               <h1>Recovery Ratio</h1>
-              <label >[[ (((1/(numbers[selected_num]-1))/recovery_rolls)+1).toFixed(4) ]]</label>
+              <label >[[ ((((1/(numbers[selected_num]-1))+1)/recovery_rolls)).toFixed(4) ]]</label>
             </div>
           </div>
           <div class="flex flex-col w-full">
@@ -463,7 +463,7 @@ document.addEventListener('contextmenu', function(event) {
         })
         .then((response) => {
           // handle success
-            console.log(response);
+            // console.log(response);
             this.chart = JSON.parse(JSON.stringify(response['data']['chart']))
             this.bar_chart = JSON.parse(JSON.stringify(response['data']['bar_chart']))
             this.streak_distance = JSON.parse(JSON.stringify(response['data']['streak_distance']))
@@ -739,7 +739,7 @@ document.addEventListener('contextmenu', function(event) {
 
             series: [{
                 name: 'Recovery Ratio',
-                data: Object.values(this.numbers).map(value => value === this.numbers[parseInt(this.selected_num)] ? {y: parseFloat((((1/(value-1))/this.recovery_rolls)+1).toFixed(4)), marker: {radius: 6}} : parseFloat((((1/(value-1))/this.recovery_rolls)+1).toFixed(4)))
+                data: Object.values(this.numbers).map(value => value === this.numbers[parseInt(this.selected_num)] ? {y: parseFloat(((((1/(value-1))+1)/this.recovery_rolls)).toFixed(4)), marker: {radius: 6}} : parseFloat(((((1/(value-1))+1)/this.recovery_rolls)).toFixed(4)))
             }],
 
             responsive: {

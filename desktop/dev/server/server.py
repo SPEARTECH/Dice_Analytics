@@ -3,6 +3,8 @@ import os
 import sys
 import random
 from flask import Flask, render_template, render_template_string, request, jsonify
+import numpy as np
+import random
 
 app = Flask(__name__)
 # history = []
@@ -25,11 +27,17 @@ def index():
         return render_template_string(html)
 
 def spin_calculate(user_amt, bet, number, winnings, history):
-    all_numbers = []
-    for i in range(0,100):
-        all_numbers.append(i)
-    status = ''
-    result = all_numbers[random.randint(0,len(all_numbers)-1)]
+    # all_numbers = []
+    # for i in range(0,10000):
+    #     all_numbers.append(i)
+    # status = ''
+    # result = all_numbers[random.randint(0,len(all_numbers)-1)]/100
+
+    # Generate the array with numpy
+    all_numbers = np.arange(0, 10000) / 100
+
+    # Select a random element
+    result = np.random.choice(all_numbers)
     
     if result > int(number):
         user_amt = user_amt + (bet * (winnings - 1))
@@ -58,7 +66,7 @@ def calculate(user_bet, number, winnings, increase, rolls, recovery_rolls, max_l
     loss_amt = 0
     ratio = 0
     recovery_numbers = {}
-    recovery_count = 0
+    # recovery_count = 0
     recovery_rolls = int(recovery_rolls)
     losing_streak = 0
     streaks = []
@@ -70,12 +78,13 @@ def calculate(user_bet, number, winnings, increase, rolls, recovery_rolls, max_l
         if status == 'loss':
             losses = losses + 1
             loss_amt = loss_amt + bet 
-            bet = bet * increase         
+            bet = bet * increase       
             # if bet in recovery_numbers:
             #     recovery_numbers[bet] += recovery_rolls
             # else:
             #     recovery_numbers[bet] = recovery_rolls
-            recovery_count = recovery_rolls
+            recovery_numbers[bet] = recovery_rolls
+            # recovery_count = recovery_rolls
             losing_streak += 1 * recovery_rolls
             if losing_streak >= max_losing_streak * recovery_rolls and max_losing_streak != 0:
                 bet = user_bet
@@ -91,18 +100,18 @@ def calculate(user_bet, number, winnings, increase, rolls, recovery_rolls, max_l
                 streaks.append(0)
             wins = wins + 1
             win_amt = win_amt + (bet * (winnings - 1)) 
-            recovery_count = recovery_count - 1
-            if recovery_count <= 0:
-                bet = user_bet 
-                recovery_count = 0
-            # if bet in recovery_numbers:
-            #     recovery_numbers[bet] -= 1
-            #     if recovery_numbers[bet] <= 0:
-            #         recovery_numbers[bet] = 0
-            #         # bet = bet / increase
-            #         # if bet <= user_bet:
-            #         #     bet = user_bet
-            #         bet = user_bet    
+            # recovery_count = recovery_count - 1
+            # if recovery_count <= 0:
+            #     bet = user_bet 
+            #     recovery_count = 0
+            if bet in recovery_numbers:
+                recovery_numbers[bet] -= 1
+                if recovery_numbers[bet] <= 0:
+                    recovery_numbers[bet] = 0
+                    # bet = bet / increase
+                    # if bet <= user_bet:
+                    #     bet = user_bet
+                    bet = user_bet    
     if losses != 0:
         percentage = round(wins/(wins+(losses))*100,2)
         ratio_avg = round((win_amt/wins)/(loss_amt/losses),2)
