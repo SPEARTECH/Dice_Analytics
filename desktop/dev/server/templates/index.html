@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Dice Analytics</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.7.2/dist/full.min.css" rel="stylesheet" type="text/css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/danfojs@1.1.2/lib/bundle.min.js"></script>
+  <script src="https://code.highcharts.com/highcharts.js"></script>
+  <script src="https://code.highcharts.com/modules/boost.js"></script>
+  <script src="https://code.highcharts.com/modules/exporting.js"></script>
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+  <!-- <link rel="icon" href="data:text/plain;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCg0KPCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAxLjEvL0VOIiAiaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkIj4NCjwhLS0gVXBsb2FkZWQgdG86IFNWRyBSZXBvLCB3d3cuc3ZncmVwby5jb20sIEdlbmVyYXRvcjogU1ZHIFJlcG8gTWl4ZXIgVG9vbHMgLS0+DQo8c3ZnIGhlaWdodD0iODAwcHgiIHdpZHRoPSI4MDBweCIgdmVyc2lvbj0iMS4xIiBpZD0iX3gzMl8iIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIA0KCSB2aWV3Qm94PSIwIDAgNTEyIDUxMiIgIHhtbDpzcGFjZT0icHJlc2VydmUiPg0KPHN0eWxlIHR5cGU9InRleHQvY3NzIj4NCgkuc3Qwe2ZpbGw6IzAwMDAwMDt9DQo8L3N0eWxlPg0KPGc+DQoJPHBhdGggY2xhc3M9InN0MCIgZD0iTTQ0OS41MzEsMTA1LjYwMkwyODguNDYzLDguOTg5QzI3OC40NzMsMi45OTQsMjY3LjIzNSwwLDI1Ni4wMSwwYy0xMS4yMzgsMC0yMi40ODMsMi45OTQtMzIuNDY2LDguOTg5DQoJCUw2Mi40NzUsMTA1LjYwMmMtMTkuMDEyLDExLjQwNi0zMC42NDcsMzEuOTQ5LTMwLjY0Nyw1NC4xMTd2MTkyLjU2MmMwLDIyLjE2OCwxMS42MzUsNDIuNzExLDMwLjY0Nyw1NC4xMTdsMTYxLjA2OSw5Ni42MTMNCgkJYzkuOTgyLDUuOTg4LDIxLjIyOCw4Ljk4OSwzMi40NjYsOC45ODljMTEuMjI2LDAsMjIuNDYzLTMuMDAxLDMyLjQ1My04Ljk4OWwxNjEuMDY5LTk2LjYxMw0KCQljMTkuMDEzLTExLjQwNiwzMC42NC0zMS45NSwzMC42NC01NC4xMTdWMTU5LjcxOUM0ODAuMTcyLDEzNy41NTEsNDY4LjU0NCwxMTcuMDA4LDQ0OS41MzEsMTA1LjYwMnogTTI1MC41OTksNDkyLjczMw0KCQljLTYuMDI4LTAuNzQ1LTExLjkyOS0yLjcxMy0xNy4zMi01Ljk0OUw3Mi4yMDksMzkwLjE3MWMtMTMuMzA2LTcuOTg5LTIxLjQ1Ni0yMi4zNjktMjEuNDU2LTM3Ljg5VjE1OS43MTkNCgkJYzAtNi4wMjIsMS4yMzUtMTEuODYyLDMuNTE4LTE3LjIzNGwxOTYuMzI4LDExNy43NlY0OTIuNzMzeiBNNTkuNjY5LDEzMy4xMTRjMy4zNjQtNC40NjQsNy41OTMtOC4zMTgsMTIuNTQtMTEuMjg2bDE2MS4wNjktOTYuNjEzDQoJCWM2Ljk5NS00LjE5NiwxNC44NS02LjI5LDIyLjczMS02LjI5YzcuODY4LDAsMTUuNzI0LDIuMDk1LDIyLjcxOCw2LjI5bDE2MS4wNjksOTYuNjEzYzQuOTQyLDIuOTY4LDkuMTg0LDYuODIxLDEyLjU0LDExLjI4Ng0KCQlMMjU2LjAxLDI1MC44ODFMNTkuNjY5LDEzMy4xMTR6IE00NjEuMjUzLDM1Mi4yODFjMCwxNS41MjEtOC4xNSwyOS45MDEtMjEuNDU2LDM3Ljg5bC0xNjEuMDY5LDk2LjYxMw0KCQljLTUuMzk3LDMuMjM2LTExLjI5Miw1LjIwNC0xNy4zMiw1Ljk0OVYyNjAuMjQ2bDE5Ni4zMjgtMTE3Ljc2YzIuMjgyLDUuMzcxLDMuNTE4LDExLjIxMiwzLjUxOCwxNy4yMzRWMzUyLjI4MXoiLz4NCgk8cGF0aCBjbGFzcz0ic3QwIiBkPSJNMzgyLjM0MywxMTUuNzc5Yy05LjgyOC03LjI4NC0yNi4wMjItNy40NjUtMzYuMTU5LTAuNDE2Yy0xMC4xNSw3LjA0OS0xMC40MDUsMTguNjc3LTAuNTc3LDI1Ljk0OA0KCQljOS44MjgsNy4yNzcsMjYuMDIyLDcuNDY2LDM2LjE1OSwwLjQxNkMzOTEuOTE3LDEzNC42NzEsMzkyLjE3MiwxMjMuMDU3LDM4Mi4zNDMsMTE1Ljc3OXoiLz4NCgk8cGF0aCBjbGFzcz0ic3QwIiBkPSJNMTY1LjYyLDExMy41NjRjLTkuODI4LTcuMjc4LTI2LjAyMi03LjQ1OS0zNi4xNzItMC40MWMtMTAuMTM3LDcuMDU2LTEwLjM5MiwxOC42Ny0wLjU3MSwyNS45NDgNCgkJYzkuODM1LDcuMjg0LDI2LjAyOCw3LjQ1OSwzNi4xNjUsMC40MTZDMTc1LjE5NCwxMzIuNDU2LDE3NS40NDksMTIwLjg0MiwxNjUuNjIsMTEzLjU2NHoiLz4NCgk8cGF0aCBjbGFzcz0ic3QwIiBkPSJNMjczLjM1OCwxMTUuMTAyYy05LjQ5My03LjAyOS0yNS4xMzYtNy4yMS0zNC45MzctMC4zOTZjLTkuODAxLDYuODE0LTEwLjA1NiwxOC4wMzktMC41NTcsMjUuMDY4DQoJCWM5LjQ5OSw3LjAyOCwyNS4xNDIsNy4yMSwzNC45NDMsMC4zOTZDMjgyLjYwOSwxMzMuMzU2LDI4Mi44NjQsMTIyLjEzMSwyNzMuMzU4LDExNS4xMDJ6Ii8+DQoJPHBhdGggY2xhc3M9InN0MCIgZD0iTTg5LjI4OSwyNDguMzAzYzExLjE1OCw2LjA4MywyMC4xOTQsMS45NiwyMC4xOTQtOS4xOWMwLTExLjE1OC05LjAzNi0yNS4xMjktMjAuMTk0LTMxLjIxMQ0KCQljLTExLjE1OC02LjA4Mi0yMC4yMDgtMS45NjctMjAuMjA4LDkuMTkxQzY5LjA4MSwyMjguMjQzLDc4LjEzMSwyNDIuMjIsODkuMjg5LDI0OC4zMDN6Ii8+DQoJPHBhdGggY2xhc3M9InN0MCIgZD0iTTIwMi4wNjEsMzA5Ljc3MWMxMS4xNTgsNi4wODIsMjAuMjA3LDEuOTY3LDIwLjIwNy05LjE4NGMwLTExLjE1OC05LjA1LTI1LjEzNS0yMC4yMDctMzEuMjE4DQoJCWMtMTEuMTUxLTYuMDc1LTIwLjE5NC0xLjk2LTIwLjE5NCw5LjE5OEMxODEuODY3LDI4OS43MTgsMTkwLjkxLDMwMy42ODgsMjAyLjA2MSwzMDkuNzcxeiIvPg0KCTxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik04OS4yODksMzYxLjA4MmMxMS4xNTgsNi4wODIsMjAuMTk0LDEuOTY3LDIwLjE5NC05LjE5YzAtMTEuMTU4LTkuMDM2LTI1LjEyOS0yMC4xOTQtMzEuMjExDQoJCWMtMTEuMTU4LTYuMDgzLTIwLjIwOC0xLjk2Ny0yMC4yMDgsOS4xOUM2OS4wODEsMzQxLjAyOSw3OC4xMzEsMzU1LDg5LjI4OSwzNjEuMDgyeiIvPg0KCTxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik0yMDIuMDYxLDQyMi41NWMxMS4xNTgsNi4wODIsMjAuMjA3LDEuOTY3LDIwLjIwNy05LjE5MWMwLTExLjE1MS05LjA1LTI1LjEyOC0yMC4yMDctMzEuMjExDQoJCWMtMTEuMTUxLTYuMDc2LTIwLjE5NC0xLjk2LTIwLjE5NCw5LjE5MUMxODEuODY3LDQwMi40OTcsMTkwLjkxLDQxNi40NjgsMjAyLjA2MSw0MjIuNTV6Ii8+DQoJPHBhdGggY2xhc3M9InN0MCIgZD0iTTM2MS45NDgsMjgyLjkxMWMtMTcuODU4LDkuNzI4LTMyLjMxOSwzMi4wODQtMzIuMzE5LDQ5LjkyOGMwLDE3Ljg1LDE0LjQ2MSwyNC40MzcsMzIuMzE5LDE0LjcwOQ0KCQljMTcuODQ0LTkuNzM0LDMyLjMxOS0zMi4wOSwzMi4zMTktNDkuOTQxQzM5NC4yNjcsMjc5Ljc2MiwzNzkuNzkyLDI3My4xNzYsMzYxLjk0OCwyODIuOTExeiIvPg0KPC9nPg0KPC9zdmc+" type="text/plain"> -->
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCg0KPCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAxLjEvL0VOIiAiaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkIj4NCjwhLS0gVXBsb2FkZWQgdG86IFNWRyBSZXBvLCB3d3cuc3ZncmVwby5jb20sIEdlbmVyYXRvcjogU1ZHIFJlcG8gTWl4ZXIgVG9vbHMgLS0+DQo8c3ZnIGhlaWdodD0iODAwcHgiIHdpZHRoPSI4MDBweCIgdmVyc2lvbj0iMS4xIiBpZD0iX3gzMl8iIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIA0KCSB2aWV3Qm94PSIwIDAgNTEyIDUxMiIgIHhtbDpzcGFjZT0icHJlc2VydmUiPg0KPHN0eWxlIHR5cGU9InRleHQvY3NzIj4NCgkuc3Qwe2ZpbGw6IzAwMDAwMDt9DQo8L3N0eWxlPg0KPGc+DQoJPHBhdGggY2xhc3M9InN0MCIgZD0iTTQ0OS41MzEsMTA1LjYwMkwyODguNDYzLDguOTg5QzI3OC40NzMsMi45OTQsMjY3LjIzNSwwLDI1Ni4wMSwwYy0xMS4yMzgsMC0yMi40ODMsMi45OTQtMzIuNDY2LDguOTg5DQoJCUw2Mi40NzUsMTA1LjYwMmMtMTkuMDEyLDExLjQwNi0zMC42NDcsMzEuOTQ5LTMwLjY0Nyw1NC4xMTd2MTkyLjU2MmMwLDIyLjE2OCwxMS42MzUsNDIuNzExLDMwLjY0Nyw1NC4xMTdsMTYxLjA2OSw5Ni42MTMNCgkJYzkuOTgyLDUuOTg4LDIxLjIyOCw4Ljk4OSwzMi40NjYsOC45ODljMTEuMjI2LDAsMjIuNDYzLTMuMDAxLDMyLjQ1My04Ljk4OWwxNjEuMDY5LTk2LjYxMw0KCQljMTkuMDEzLTExLjQwNiwzMC42NC0zMS45NSwzMC42NC01NC4xMTdWMTU5LjcxOUM0ODAuMTcyLDEzNy41NTEsNDY4LjU0NCwxMTcuMDA4LDQ0OS41MzEsMTA1LjYwMnogTTI1MC41OTksNDkyLjczMw0KCQljLTYuMDI4LTAuNzQ1LTExLjkyOS0yLjcxMy0xNy4zMi01Ljk0OUw3Mi4yMDksMzkwLjE3MWMtMTMuMzA2LTcuOTg5LTIxLjQ1Ni0yMi4zNjktMjEuNDU2LTM3Ljg5VjE1OS43MTkNCgkJYzAtNi4wMjIsMS4yMzUtMTEuODYyLDMuNTE4LTE3LjIzNGwxOTYuMzI4LDExNy43NlY0OTIuNzMzeiBNNTkuNjY5LDEzMy4xMTRjMy4zNjQtNC40NjQsNy41OTMtOC4zMTgsMTIuNTQtMTEuMjg2bDE2MS4wNjktOTYuNjEzDQoJCWM2Ljk5NS00LjE5NiwxNC44NS02LjI5LDIyLjczMS02LjI5YzcuODY4LDAsMTUuNzI0LDIuMDk1LDIyLjcxOCw2LjI5bDE2MS4wNjksOTYuNjEzYzQuOTQyLDIuOTY4LDkuMTg0LDYuODIxLDEyLjU0LDExLjI4Ng0KCQlMMjU2LjAxLDI1MC44ODFMNTkuNjY5LDEzMy4xMTR6IE00NjEuMjUzLDM1Mi4yODFjMCwxNS41MjEtOC4xNSwyOS45MDEtMjEuNDU2LDM3Ljg5bC0xNjEuMDY5LDk2LjYxMw0KCQljLTUuMzk3LDMuMjM2LTExLjI5Miw1LjIwNC0xNy4zMiw1Ljk0OVYyNjAuMjQ2bDE5Ni4zMjgtMTE3Ljc2YzIuMjgyLDUuMzcxLDMuNTE4LDExLjIxMiwzLjUxOCwxNy4yMzRWMzUyLjI4MXoiLz4NCgk8cGF0aCBjbGFzcz0ic3QwIiBkPSJNMzgyLjM0MywxMTUuNzc5Yy05LjgyOC03LjI4NC0yNi4wMjItNy40NjUtMzYuMTU5LTAuNDE2Yy0xMC4xNSw3LjA0OS0xMC40MDUsMTguNjc3LTAuNTc3LDI1Ljk0OA0KCQljOS44MjgsNy4yNzcsMjYuMDIyLDcuNDY2LDM2LjE1OSwwLjQxNkMzOTEuOTE3LDEzNC42NzEsMzkyLjE3MiwxMjMuMDU3LDM4Mi4zNDMsMTE1Ljc3OXoiLz4NCgk8cGF0aCBjbGFzcz0ic3QwIiBkPSJNMTY1LjYyLDExMy41NjRjLTkuODI4LTcuMjc4LTI2LjAyMi03LjQ1OS0zNi4xNzItMC40MWMtMTAuMTM3LDcuMDU2LTEwLjM5MiwxOC42Ny0wLjU3MSwyNS45NDgNCgkJYzkuODM1LDcuMjg0LDI2LjAyOCw3LjQ1OSwzNi4xNjUsMC40MTZDMTc1LjE5NCwxMzIuNDU2LDE3NS40NDksMTIwLjg0MiwxNjUuNjIsMTEzLjU2NHoiLz4NCgk8cGF0aCBjbGFzcz0ic3QwIiBkPSJNMjczLjM1OCwxMTUuMTAyYy05LjQ5My03LjAyOS0yNS4xMzYtNy4yMS0zNC45MzctMC4zOTZjLTkuODAxLDYuODE0LTEwLjA1NiwxOC4wMzktMC41NTcsMjUuMDY4DQoJCWM5LjQ5OSw3LjAyOCwyNS4xNDIsNy4yMSwzNC45NDMsMC4zOTZDMjgyLjYwOSwxMzMuMzU2LDI4Mi44NjQsMTIyLjEzMSwyNzMuMzU4LDExNS4xMDJ6Ii8+DQoJPHBhdGggY2xhc3M9InN0MCIgZD0iTTg5LjI4OSwyNDguMzAzYzExLjE1OCw2LjA4MywyMC4xOTQsMS45NiwyMC4xOTQtOS4xOWMwLTExLjE1OC05LjAzNi0yNS4xMjktMjAuMTk0LTMxLjIxMQ0KCQljLTExLjE1OC02LjA4Mi0yMC4yMDgtMS45NjctMjAuMjA4LDkuMTkxQzY5LjA4MSwyMjguMjQzLDc4LjEzMSwyNDIuMjIsODkuMjg5LDI0OC4zMDN6Ii8+DQoJPHBhdGggY2xhc3M9InN0MCIgZD0iTTIwMi4wNjEsMzA5Ljc3MWMxMS4xNTgsNi4wODIsMjAuMjA3LDEuOTY3LDIwLjIwNy05LjE4NGMwLTExLjE1OC05LjA1LTI1LjEzNS0yMC4yMDctMzEuMjE4DQoJCWMtMTEuMTUxLTYuMDc1LTIwLjE5NC0xLjk2LTIwLjE5NCw5LjE5OEMxODEuODY3LDI4OS43MTgsMTkwLjkxLDMwMy42ODgsMjAyLjA2MSwzMDkuNzcxeiIvPg0KCTxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik04OS4yODksMzYxLjA4MmMxMS4xNTgsNi4wODIsMjAuMTk0LDEuOTY3LDIwLjE5NC05LjE5YzAtMTEuMTU4LTkuMDM2LTI1LjEyOS0yMC4xOTQtMzEuMjExDQoJCWMtMTEuMTU4LTYuMDgzLTIwLjIwOC0xLjk2Ny0yMC4yMDgsOS4xOUM2OS4wODEsMzQxLjAyOSw3OC4xMzEsMzU1LDg5LjI4OSwzNjEuMDgyeiIvPg0KCTxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik0yMDIuMDYxLDQyMi41NWMxMS4xNTgsNi4wODIsMjAuMjA3LDEuOTY3LDIwLjIwNy05LjE5MWMwLTExLjE1MS05LjA1LTI1LjEyOC0yMC4yMDctMzEuMjExDQoJCWMtMTEuMTUxLTYuMDc2LTIwLjE5NC0xLjk2LTIwLjE5NCw5LjE5MUMxODEuODY3LDQwMi40OTcsMTkwLjkxLDQxNi40NjgsMjAyLjA2MSw0MjIuNTV6Ii8+DQoJPHBhdGggY2xhc3M9InN0MCIgZD0iTTM2MS45NDgsMjgyLjkxMWMtMTcuODU4LDkuNzI4LTMyLjMxOSwzMi4wODQtMzIuMzE5LDQ5LjkyOGMwLDE3Ljg1LDE0LjQ2MSwyNC40MzcsMzIuMzE5LDE0LjcwOQ0KCQljMTcuODQ0LTkuNzM0LDMyLjMxOS0zMi4wOSwzMi4zMTktNDkuOTQxQzM5NC4yNjcsMjc5Ljc2MiwzNzkuNzkyLDI3My4xNzYsMzYxLjk0OCwyODIuOTExeiIvPg0KPC9nPg0KPC9zdmc+">
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+
+<body>
+<!--
+  This example requires updating your template:
+
+  ```
+  <html class="h-full bg-white">
+  <body class="h-full">
+  ```
+-->  <!--  -->
+  <div id="app" class="text-center h-screen flex flex-col">
+
+<div>
+  <!-- Off-canvas menu for mobile, show/hide based on off-canvas menu state. -->
+  <div v-if="sidebar == true" class="relative z-50 lg:hidden " role="dialog" aria-modal="true" >
+    <!--
+      Off-canvas menu backdrop, show/hide based on off-canvas menu state.
+
+      Entering: "transition-opacity ease-linear duration-300"
+        From: "opacity-0"
+        To: "opacity-100"
+      Leaving: "transition-opacity ease-linear duration-300"
+        From: "opacity-100"
+        To: "opacity-0"
+    -->
+    <div class="fixed inset-0 bg-gray-900/80 "></div>
+
+    <div class="fixed inset-0 flex" >
+      <!--
+        Off-canvas menu, show/hide based on off-canvas menu state.
+
+        Entering: "transition ease-in-out duration-300 transform"
+          From: "-translate-x-full"
+          To: "translate-x-0"
+        Leaving: "transition ease-in-out duration-300 transform"
+          From: "translate-x-0"
+          To: "-translate-x-full"
+      -->
+      <div class="relative mr-16 flex w-full max-w-xs flex-1" >
+        <!--
+          Close button, show/hide based on off-canvas menu state.
+
+          Entering: "ease-in-out duration-300"
+            From: "opacity-0"
+            To: "opacity-100"
+          Leaving: "ease-in-out duration-300"
+            From: "opacity-100"
+            To: "opacity-0"
+        -->
+        <div class="absolute left-full top-0 flex w-16 justify-center pt-5">
+          <button type="button" class="-m-2.5 p-2.5" @click="sidebar_toggle">
+            <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Sidebar component, swap this element with another sidebar if you like -->
+        <div  class="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pt-4">
+          <div class="flex  self-center items-center">
+            <!-- <img class="h-8 w-auto" src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600" alt="Dice Analytics"> -->
+            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" height="50px" width="50px" version="1.1" id="_x32_" viewBox="0 0 512 512" xml:space="preserve">
+              <style type="text/css">
+                .st0{fill:#000000;}
+              </style>
+              <g>
+                <path class="st0" d="M449.531,105.602L288.463,8.989C278.473,2.994,267.235,0,256.01,0c-11.238,0-22.483,2.994-32.466,8.989   L62.475,105.602c-19.012,11.406-30.647,31.949-30.647,54.117v192.562c0,22.168,11.635,42.711,30.647,54.117l161.069,96.613   c9.982,5.988,21.228,8.989,32.466,8.989c11.226,0,22.463-3.001,32.453-8.989l161.069-96.613   c19.013-11.406,30.64-31.95,30.64-54.117V159.719C480.172,137.551,468.544,117.008,449.531,105.602z M250.599,492.733   c-6.028-0.745-11.929-2.713-17.32-5.949L72.209,390.171c-13.306-7.989-21.456-22.369-21.456-37.89V159.719   c0-6.022,1.235-11.862,3.518-17.234l196.328,117.76V492.733z M59.669,133.114c3.364-4.464,7.593-8.318,12.54-11.286l161.069-96.613   c6.995-4.196,14.85-6.29,22.731-6.29c7.868,0,15.724,2.095,22.718,6.29l161.069,96.613c4.942,2.968,9.184,6.821,12.54,11.286   L256.01,250.881L59.669,133.114z M461.253,352.281c0,15.521-8.15,29.901-21.456,37.89l-161.069,96.613   c-5.397,3.236-11.292,5.204-17.32,5.949V260.246l196.328-117.76c2.282,5.371,3.518,11.212,3.518,17.234V352.281z"/>
+                <path class="st0" d="M382.343,115.779c-9.828-7.284-26.022-7.465-36.159-0.416c-10.15,7.049-10.405,18.677-0.577,25.948   c9.828,7.277,26.022,7.466,36.159,0.416C391.917,134.671,392.172,123.057,382.343,115.779z"/>
+                <path class="st0" d="M165.62,113.564c-9.828-7.278-26.022-7.459-36.172-0.41c-10.137,7.056-10.392,18.67-0.571,25.948   c9.835,7.284,26.028,7.459,36.165,0.416C175.194,132.456,175.449,120.842,165.62,113.564z"/>
+                <path class="st0" d="M273.358,115.102c-9.493-7.029-25.136-7.21-34.937-0.396c-9.801,6.814-10.056,18.039-0.557,25.068   c9.499,7.028,25.142,7.21,34.943,0.396C282.609,133.356,282.864,122.131,273.358,115.102z"/>
+                <path class="st0" d="M89.289,248.303c11.158,6.083,20.194,1.96,20.194-9.19c0-11.158-9.036-25.129-20.194-31.211   c-11.158-6.082-20.208-1.967-20.208,9.191C69.081,228.243,78.131,242.22,89.289,248.303z"/>
+                <path class="st0" d="M202.061,309.771c11.158,6.082,20.207,1.967,20.207-9.184c0-11.158-9.05-25.135-20.207-31.218   c-11.151-6.075-20.194-1.96-20.194,9.198C181.867,289.718,190.91,303.688,202.061,309.771z"/>
+                <path class="st0" d="M89.289,361.082c11.158,6.082,20.194,1.967,20.194-9.19c0-11.158-9.036-25.129-20.194-31.211   c-11.158-6.083-20.208-1.967-20.208,9.19C69.081,341.029,78.131,355,89.289,361.082z"/>
+                <path class="st0" d="M202.061,422.55c11.158,6.082,20.207,1.967,20.207-9.191c0-11.151-9.05-25.128-20.207-31.211   c-11.151-6.076-20.194-1.96-20.194,9.191C181.867,402.497,190.91,416.468,202.061,422.55z"/>
+                <path class="st0" d="M361.948,282.911c-17.858,9.728-32.319,32.084-32.319,49.928c0,17.85,14.461,24.437,32.319,14.709   c17.844-9.734,32.319-32.09,32.319-49.941C394.267,279.762,379.792,273.176,361.948,282.911z"/>
+              </g>
+              </svg>
+          </div>
+          <nav class="flex flex-1 flex-col">
+
+
+            <label class="text-3xl"> Over [[ selected_num ]]</label>
+            <br>
+            <div class="flex justify-center " >
+              <div class="text-left w-full">
+                <input type="range" min="2" max="98" value="50" v-model="selected_num" class="range range-sm range-primary mb-4" />
+              <!-- <div class="dropdown dropdown-bottom mb-4">
+                <div tabindex="0" role="button" class="btn m-1">Above #: [[ selected_num ]]</div>
+                <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+                  <li v-for="x in Object.keys(numbers)" @click="selected_num = x"><a>[[ x ]]</a></li>
+                </ul>
+              </div> -->
+              <!-- <div class="join flex justify-center mb-4">
+                <input class="join-item btn" type="radio" name="options" aria-label="Martingale" checked @click="selected_method = 'martingale' " />
+                <input class="join-item btn" type="radio" name="options" aria-label="Partial Martingale" @click="selected_method = 'partial_martingale' " />
+              </div> -->
+              <div class="flex flex-col w-full">
+                <div class="divider">Stats</div>
+                <div class="flex justify-between mb-4 spacing-4" v-if="selected_num != '' ">
+                  <h1>Payout Ratio</h1>
+                  <label>[[ numbers[selected_num] ]]</label>
+                </div>
+                <div class="flex justify-between mb-4 spacing-4">
+                  <h1>Recovery Rolls</h1>
+                  <!-- <label>[[ (1/(numbers[selected_num]-1)+1).toFixed(4) ]]</label> -->
+                  <input type="number"  placeholder="#" min="0" v-model="recovery_rolls" class="input input-sm input-bordered w-24 max-w-xs" />
+                </div>      
+                <div class="flex justify-between mb-4 spacing-4" v-if="selected_num != '' ">
+                  <h1>Recovery Ratio</h1>
+                  <label >[[ (((1/(numbers[selected_num]-1))/recovery_rolls)+1).toFixed(4) ]]</label>
+                </div>
+              </div>
+              <div class="flex flex-col w-full">
+                <div class="divider">Configuration</div>
+                <div class="flex justify-between mb-4 spacing-4">
+                  <label class="self-center">Increase by</label>
+                  <input type="number" min="0"  placeholder="#" v-model="increase_num" class="input input-sm input-bordered w-24 max-w-xs" />
+                </div>
+                <div class="flex justify-between mb-4 spacing-4">
+                  <label class="self-center">Initial Bet</label>
+                  <input type="number" min="0" placeholder="#" v-model="user_bet" class="input input-sm input-bordered w-24 max-w-xs" />
+                </div>
+                <div class="flex justify-between mb-4 spacing-4">
+                  <label class="self-center">Rolls</label>
+                  <input type="number" min="0" placeholder="#" v-model="rolls" class="input input-sm input-bordered w-24 max-w-xs" />
+                </div>
+                <div class="flex justify-between mb-4 spacing-4">
+                  <label class="self-center">Max Losing Streak</label>
+                  <input type="number" min="0" placeholder="#" v-model="max_losing_streak" class="input input-sm input-bordered w-24 max-w-xs" />
+                </div>        
+                <div v-if="selected_num != '' " class="flex justify-center w-full">
+                  <button class="btn btn-sm btn-primary" @click="simulate">[[ message ]] </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Static sidebar for desktop -->
+  <div v-else class="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col" >
+    <!-- Sidebar component, swap this element with another sidebar if you like -->
+    <div class="flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white px-6">
+      <div class="flex  self-center items-center pt-4">
+        <!-- <img class="h-8 w-auto" src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600" alt="Dice Analytics"> -->
+        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" height="50px" width="50px" version="1.1" id="_x32_" viewBox="0 0 512 512" xml:space="preserve">
+          <style type="text/css">
+            .st0{fill:#000000;}
+          </style> 
+          <g>
+            <path class="st0" d="M449.531,105.602L288.463,8.989C278.473,2.994,267.235,0,256.01,0c-11.238,0-22.483,2.994-32.466,8.989   L62.475,105.602c-19.012,11.406-30.647,31.949-30.647,54.117v192.562c0,22.168,11.635,42.711,30.647,54.117l161.069,96.613   c9.982,5.988,21.228,8.989,32.466,8.989c11.226,0,22.463-3.001,32.453-8.989l161.069-96.613   c19.013-11.406,30.64-31.95,30.64-54.117V159.719C480.172,137.551,468.544,117.008,449.531,105.602z M250.599,492.733   c-6.028-0.745-11.929-2.713-17.32-5.949L72.209,390.171c-13.306-7.989-21.456-22.369-21.456-37.89V159.719   c0-6.022,1.235-11.862,3.518-17.234l196.328,117.76V492.733z M59.669,133.114c3.364-4.464,7.593-8.318,12.54-11.286l161.069-96.613   c6.995-4.196,14.85-6.29,22.731-6.29c7.868,0,15.724,2.095,22.718,6.29l161.069,96.613c4.942,2.968,9.184,6.821,12.54,11.286   L256.01,250.881L59.669,133.114z M461.253,352.281c0,15.521-8.15,29.901-21.456,37.89l-161.069,96.613   c-5.397,3.236-11.292,5.204-17.32,5.949V260.246l196.328-117.76c2.282,5.371,3.518,11.212,3.518,17.234V352.281z"/>
+            <path class="st0" d="M382.343,115.779c-9.828-7.284-26.022-7.465-36.159-0.416c-10.15,7.049-10.405,18.677-0.577,25.948   c9.828,7.277,26.022,7.466,36.159,0.416C391.917,134.671,392.172,123.057,382.343,115.779z"/>
+            <path class="st0" d="M165.62,113.564c-9.828-7.278-26.022-7.459-36.172-0.41c-10.137,7.056-10.392,18.67-0.571,25.948   c9.835,7.284,26.028,7.459,36.165,0.416C175.194,132.456,175.449,120.842,165.62,113.564z"/>
+            <path class="st0" d="M273.358,115.102c-9.493-7.029-25.136-7.21-34.937-0.396c-9.801,6.814-10.056,18.039-0.557,25.068   c9.499,7.028,25.142,7.21,34.943,0.396C282.609,133.356,282.864,122.131,273.358,115.102z"/>
+            <path class="st0" d="M89.289,248.303c11.158,6.083,20.194,1.96,20.194-9.19c0-11.158-9.036-25.129-20.194-31.211   c-11.158-6.082-20.208-1.967-20.208,9.191C69.081,228.243,78.131,242.22,89.289,248.303z"/>
+            <path class="st0" d="M202.061,309.771c11.158,6.082,20.207,1.967,20.207-9.184c0-11.158-9.05-25.135-20.207-31.218   c-11.151-6.075-20.194-1.96-20.194,9.198C181.867,289.718,190.91,303.688,202.061,309.771z"/>
+            <path class="st0" d="M89.289,361.082c11.158,6.082,20.194,1.967,20.194-9.19c0-11.158-9.036-25.129-20.194-31.211   c-11.158-6.083-20.208-1.967-20.208,9.19C69.081,341.029,78.131,355,89.289,361.082z"/>
+            <path class="st0" d="M202.061,422.55c11.158,6.082,20.207,1.967,20.207-9.191c0-11.151-9.05-25.128-20.207-31.211   c-11.151-6.076-20.194-1.96-20.194,9.191C181.867,402.497,190.91,416.468,202.061,422.55z"/>
+            <path class="st0" d="M361.948,282.911c-17.858,9.728-32.319,32.084-32.319,49.928c0,17.85,14.461,24.437,32.319,14.709   c17.844-9.734,32.319-32.09,32.319-49.941C394.267,279.762,379.792,273.176,361.948,282.911z"/>
+          </g>
+          </svg>
+      </div>
+      <nav class="flex flex-1 flex-col">
+        <label>Over</label>
+        <label class="text-3xl"> [[ selected_num ]]</label>
+        <br>
+        <div class="flex justify-center " >
+          <div class="text-left w-full">
+            <input type="range" min="2" max="98" value="50" v-model="selected_num" class="range range-sm range-primary mb-4" />
+          <!-- <div class="dropdown dropdown-bottom mb-4">
+            <div tabindex="0" role="button" class="btn m-1">Above #: [[ selected_num ]]</div>
+            <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+              <li v-for="x in Object.keys(numbers)" @click="selected_num = x"><a>[[ x ]]</a></li>
+            </ul>
+          </div> -->
+          <!-- <div class="join flex justify-center mb-4">
+            <input class="join-item btn" type="radio" name="options" aria-label="Martingale" checked @click="selected_method = 'martingale' " />
+            <input class="join-item btn" type="radio" name="options" aria-label="Partial Martingale" @click="selected_method = 'partial_martingale' " />
+          </div> -->
+          <div class="flex flex-col w-full">
+            <div class="divider">Stats</div>
+            <div class="flex justify-between mb-4 spacing-4" v-if="selected_num != '' ">
+              <h1>Payout Ratio</h1>
+              <label>[[ numbers[selected_num] ]]</label>
+            </div>
+            <div class="flex justify-between mb-4 spacing-4">
+              <h1>Recovery Rolls</h1>
+              <!-- <label>[[ (1/(numbers[selected_num]-1)+1).toFixed(4) ]]</label> -->
+              <input type="number"  placeholder="#" min="0" v-model="recovery_rolls" class="input input-sm input-bordered w-24 max-w-xs" />
+            </div>      
+            <div class="flex justify-between mb-4 spacing-4" v-if="selected_num != '' ">
+              <h1>Recovery Ratio</h1>
+              <label >[[ (((1/(numbers[selected_num]-1))/recovery_rolls)+1).toFixed(4) ]]</label>
+            </div>
+          </div>
+          <div class="flex flex-col w-full">
+            <div class="divider">Configuration</div>
+            <div class="flex justify-between mb-4 spacing-4">
+              <label class="self-center">Increase by</label>
+              <input type="number" min="0"  placeholder="#" v-model="increase_num" class="input input-sm input-bordered w-24 max-w-xs" />
+            </div>
+            <div class="flex justify-between mb-4 spacing-4">
+              <label class="self-center">Initial Bet</label>
+              <input type="number" min="0" placeholder="#" v-model="user_bet" class="input input-sm input-bordered w-24 max-w-xs" />
+            </div>
+            <div class="flex justify-between mb-4 spacing-4">
+              <label class="self-center">Rolls</label>
+              <input type="number" min="0" placeholder="#" v-model="rolls" class="input input-sm input-bordered w-24 max-w-xs" />
+            </div>
+            <div class="flex justify-between mb-4 spacing-4">
+              <label class="self-center">Max Losing Streak</label>
+              <input type="number" min="0" placeholder="#" v-model="max_losing_streak" class="input input-sm input-bordered w-24 max-w-xs" />
+            </div>        
+            <div v-if="selected_num != '' " class="flex justify-center w-full">
+              <button class="btn btn-sm btn-primary mb-4 transform-none  hover:border-transparent" @click="simulate">[[ message ]] </button>
+            </div>
+            
+            <div v-if="simulated">
+              <div class="divider">Optimization</div>
+              <div class="flex justify-between mb-4 spacing-4">
+                <label class="self-center">Risk Tolerance</label>
+                <input type="number" min="0" placeholder="#" v-model="max_losing_streak" class="input input-sm input-bordered w-24 max-w-xs" />
+              </div> 
+              <div class="flex justify-center w-full">
+                <button class="btn btn-sm bg-primary-content transform-none hover:bg-primary-content hover:border-transparent" @click="analyze">Analyze </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      </nav>
+    </div>
+  </div>
+
+  <div class="sticky top-0 z-40 flex items-center gap-x-6 bg-white px-4 py-4 shadow-sm sm:px-6 lg:hidden">
+    <button type="button" class="-m-2.5 p-2.5 text-gray-700 lg:hidden" @click="sidebar_toggle">
+      <span class="sr-only">Open sidebar</span>
+      <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+      </svg>
+    </button>
+    <div class="flex-1 text-4xl font-semibold leading-6 text-gray-900">Dice Analytics</div>
+    <div></div>
+  </div>
+
+  <main v-if="loading === true " class=" lg:pl-72  flex justify-center items-center min-h-screen">
+    <div class="px-4 sm:px-6 lg:px-8 flex justify-center items-center">
+      <!-- Your content -->
+      <div  class="flex justify-center items-center w-full h-full">
+        <span class="loading loading-bars loading-lg"></span>
+      </div>
+    </div>
+  </main>
+
+
+  <main v-show="loading === false " class=" lg:pl-72">
+    <div class="px-4 sm:px-6 lg:px-8">
+      <!-- Your content -->
+      <div class="grid grid-cols-6">
+        <!-- <div class="card shadow-md col-span-3"> -->
+          <div class="flex-grow p-4 col-span-6" id="chart">
+          <!-- </div>     -->
+        </div>
+        <!-- <div class="card shadow-md col-span-1"> -->
+          <div class="flex-grow p-4 col-span-6 sm:col-span-6 md:col-span-2" id="bar_chart">
+          <!-- </div>     -->
+        </div>
+        <div class="flex-grow p-4 col-span-6 sm:col-span-6 md:col-span-2" id="streak_distance_chart">
+        </div>
+        <div class="flex-grow p-4 col-span-6 sm:col-span-6 md:col-span-2" id="streak_cost_chart">
+        </div>
+        <div class="flex-grow p-4 col-span-6 sm:col-span-6 md:col-span-3" id="recovery_chart">
+        </div>
+        <div class="flex-grow p-4 col-span-6 sm:col-span-6 md:col-span-3" id="logarithmic_chart">
+        </div>
+        
+      </div>
+    </div>
+  </main>
+</div>
+
+
+
+  </div>
+
+</body>
+<!-- <script>
+  // Disable right-clicking
+document.addEventListener('contextmenu', function(event) {
+    event.preventDefault();
+});
+</script> -->
+<script>
+  const { createApp } = Vue
+
+  createApp({
+    delimiters: ['[[', ']]'],
+    data() {
+      return {
+        message: 'Simulate',
+        chart: [],
+        bar_chart: [],
+        numbers: {
+          2: 1.0102,
+          3: 1.0206,
+          4: 1.0313,
+          5: 1.0421,
+          6: 1.0532,
+          7: 1.0645,
+          8: 1.0761,
+          9: 1.0879,
+          10: 1.1,
+          11: 1.1124,
+          12: 1.1250,
+          13: 1.1379,
+          14: 1.1512,
+          15: 1.1647,
+          16: 1.1786,
+          17: 1.1928,
+          18: 1.2073,
+          19: 1.2222,
+          20: 1.2375,
+          21: 1.2532,
+          22: 1.2692,
+          23: 1.2857,
+          24: 1.3026,
+          25: 1.32,
+          26: 1.3378,
+          27: 1.3562,
+          28: 1.3750,
+          29: 1.3944,
+          30: 1.4143,
+          31: 1.4348,
+          32: 1.4559,
+          33: 1.4776,
+          34: 1.5,
+          35: 1.5231,
+          36: 1.5469,
+          37: 1.5714,
+          38: 1.5968,
+          39: 1.6230,
+          40: 1.65,
+          41: 1.6780,
+          42: 1.7069,
+          43: 1.7368,
+          44: 1.7679,
+          45: 1.8,
+          46: 1.8333,
+          47: 1.8679,
+          48: 1.9038,
+          49: 1.9412,
+          50: 1.98,
+          51: 2.0204,
+          52: 2.0625,
+          53: 2.1064,
+          54: 2.1522,
+          55: 2.2,
+          56: 2.25,
+          57: 2.3023,
+          58: 2.3571,
+          59: 2.4146,
+          60: 2.4750,
+          61: 2.5385,
+          62: 2.6053,
+          63: 2.6757,
+          64: 2.75,
+          65: 2.8286,
+          66: 2.9118,
+          67: 3.0,
+          68: 3.0938,
+          69: 3.1935,
+          70: 3.3,
+          71: 3.4138,
+          72: 3.5357,
+          73: 3.6667,
+          74: 3.8077,
+          75: 3.96,
+          76: 4.125,
+          77: 4.3043,
+          78: 4.5,
+          79: 4.7143,
+          80: 4.95,
+          81: 5.2105,
+          82: 5.5,
+          83: 5.8235,
+          84: 6.1875,
+          85: 6.6,
+          86: 7.0714,
+          87: 7.6154,
+          88: 8.25,
+          89: 9.0,
+          90: 9.9,
+          91: 11,
+          92: 12.3750,
+          93: 14.1429,
+          94: 16.5,
+          95: 19.8,
+          96: 24.75,
+          97: 33.0,
+          98: 49.5,
+        },
+        selected_num: '50',
+        loading: false,
+        increase_num: 2.0204,
+        rolls: 1000,
+        user_bet: 1,
+        // selected_method: 'martingale',
+        // methods: ['martingale', 'partial_martingale'],
+        recovery_rolls: 1,
+        max_losing_streak: 0,
+        sidebar: false,
+        streak_distance: [],
+        simulated: false,
+      }
+    },
+    methods: {
+      sidebar_toggle(){
+        if (this.sidebar == false){
+          this.sidebar = true;
+        } else {
+          this.sidebar = false;
+        }
+      },
+      simulate() {
+        // this.chart = []
+        // Make a request for a user with a given ID
+        this.simulated = true;
+        this.loading = true;
+        axios.post('/api/simulate', {
+          number: this.selected_num,
+          winnings: this.numbers[this.selected_num],
+          increase: this.increase_num,
+          user_bet: this.user_bet,
+          rolls: this.rolls,
+          recovery_rolls: this.recovery_rolls,
+          max_losing_streak: this.max_losing_streak,
+        })
+        .then((response) => {
+          // handle success
+            console.log(response);
+            this.chart = JSON.parse(JSON.stringify(response['data']['chart']))
+            this.bar_chart = JSON.parse(JSON.stringify(response['data']['bar_chart']))
+            this.streak_distance = JSON.parse(JSON.stringify(response['data']['streak_distance']))
+            
+            Highcharts.chart('bar_chart', {
+              chart: {
+                  type: 'bar',
+                  zooming:{
+                    type: "y"
+                  }
+              },
+              credits: {
+                  enabled: false
+                },
+
+              title: {
+                  text: 'Losing Streak Total',
+                  align: 'center'
+              },
+              xAxis: {
+                  categories: [' '],
+                  title: {
+                      text: null
+                  },
+                  gridLineWidth: 1,
+                  lineWidth: 1
+              },
+              yAxis: {
+                  min: 0,
+                  title: {
+                      text: ' ',
+                      align: 'high'
+                  },
+                  labels: {
+                      overflow: 'justify'
+                  },
+                  gridLineWidth: 1
+              },
+              plotOptions: {
+                  bar: {
+                      borderRadius: '50%',
+                      dataLabels: {
+                          enabled: true
+                      },
+                      groupPadding: 0.1,
+                      animation: false
+
+                  }
+              },
+              legend: {
+                  // layout: 'vertical',
+                  // align: 'right',
+                  // verticalAlign: 'top',
+                  // x: 0,
+                  // y: 40,
+                  // floating: false,
+                  // borderWidth: 1,
+                  // backgroundColor:
+                  //     Highcharts
+                  enabled: false
+              },
+              credits: {
+                  enabled: false
+              },
+              series: this.bar_chart,
+              exporting: {
+                enabled: false
+              }
+          });
+
+
+            Highcharts.chart('chart', {
+              title: {
+                text: 'Simulation',
+                align: 'center'
+              },
+              chart:{
+                zooming: {
+                  type: "x"
+                }
+              },
+              // subtitle: {
+              //   text: 'Outcome',
+              //   align: 'center'
+              // },
+              credits: {
+                  enabled: false
+                },
+
+                  yAxis: {
+                      title: {
+                          text: ' '
+                      }
+                  },
+
+              xAxis: {
+                accessibility: {
+                  rangeDescription: 'Rolls'
+                }
+              },
+
+              legend: {
+                // layout: 'vertical',
+                // align: 'center',
+                // verticalAlign: 'bottom'
+                enabled: false
+              },
+
+              plotOptions: {
+                series: {
+                  label: {
+                    connectorAllowed: false
+                  },
+                  pointStart: 1,
+                  animation: false
+
+                }
+              },
+
+              series: [{
+                name: 'Results',
+                data: this.chart,
+                color: "#4A00FF",
+              }],
+              boost: {
+                useGPUTranslations: false
+              },
+              turboThreshold: 100000,
+
+              responsive: {
+                rules: [{
+                  condition: {
+                    maxWidth: 500,
+                    maxHeight: 5000,
+                  },
+                  chartOptions: {
+                    legend: {
+                      layout: 'horizontal',
+                      align: 'center',
+                      verticalAlign: 'bottom'
+                    }
+                  }
+                }]
+              },
+              exporting: {
+                enabled: true
+              }
+            })
+
+            Highcharts.chart('logarithmic_chart', {
+
+              title: {
+                  text: 'Win Ratios',
+                  align: 'center'
+              },
+
+              yAxis: {
+                  title: {
+                      text: ' '
+                  }
+              },
+
+              xAxis: {
+                title:{
+                  text: ' '
+                },
+                  accessibility: {
+                      rangeDescription: 'Range: 2010 to 2020'
+                  }
+              },
+
+              legend: {
+                  // layout: 'vertical',
+                  // align: 'right',
+                  // verticalAlign: 'middle'
+                  enabled: false
+              },
+
+                credits: {
+                  enabled: false
+                },
+
+
+              plotOptions: {
+                  series: {
+                      label: {
+                          connectorAllowed: false
+                      },
+                      pointStart: 2,
+                      animation: false,
+                      color: "#4A00FF",
+                      marker: {
+                        enabled: true,
+                        radius: 0
+                      }
+                  }
+              },
+
+              series: [{
+                  name: 'Win Ratio',
+                  data: Object.values(this.numbers).map(value => value === this.numbers[parseInt(this.selected_num)] ? {y: value, marker: {radius: 6}} : value)
+              }],
+
+              responsive: {
+                  rules: [{
+                      condition: {
+                          maxWidth: 500
+                      },
+                      chartOptions: {
+                          legend: {
+                              layout: 'horizontal',
+                              align: 'center',
+                              verticalAlign: 'bottom'
+                          }
+                      }
+                  }]
+              },
+              exporting: {
+                  enabled: false
+                }
+
+
+              });
+       
+            Highcharts.chart('recovery_chart', {
+
+            title: {
+                text: 'Recovery Ratios',
+                align: 'center'
+            },
+            credits: {
+                  enabled: false
+                },
+
+            yAxis: {
+                title: {
+                    text: ' '
+                }
+            },
+
+            xAxis: {
+              title:{
+                text: ' '
+              },
+                accessibility: {
+                    rangeDescription: 'Range: 2010 to 2020'
+                }
+            },
+
+            legend: {
+                // layout: 'vertical',
+                // align: 'right',
+                // verticalAlign: 'middle'
+                enabled: false
+            },
+
+            plotOptions: {
+                series: {
+                    label: {
+                        connectorAllowed: false
+                    },
+                    pointStart: 2,
+                    animation: false,
+                    color: "#4A00FF",
+                    marker: {
+                        enabled: true,
+                        radius: 0
+                      }
+
+
+                }
+            },
+
+            series: [{
+                name: 'Recovery Ratio',
+                data: Object.values(this.numbers).map(value => value === this.numbers[parseInt(this.selected_num)] ? {y: parseFloat((((1/(value-1))/this.recovery_rolls)+1).toFixed(4)), marker: {radius: 6}} : parseFloat((((1/(value-1))/this.recovery_rolls)+1).toFixed(4)))
+            }],
+
+            responsive: {
+                rules: [{
+                    condition: {
+                        maxWidth: 500
+                    },
+                    chartOptions: {
+                        legend: {
+                            layout: 'horizontal',
+                            align: 'center',
+                            verticalAlign: 'bottom'
+                        }
+                    }
+                }]
+            },
+            exporting: {
+                enabled: false
+              }
+
+
+            });
+          
+            Highcharts.chart('streak_distance_chart', {
+              chart: {
+                  type: 'bar',
+                  zooming:{
+                    type: "y"
+                  }
+              },
+              credits: {
+                  enabled: false
+                },
+
+              title: {
+                  text: 'Average Occurance',
+                  align: 'center'
+              },
+              xAxis: {
+                  categories: [' '],
+                  title: {
+                      text: null
+                  },
+                  gridLineWidth: 1,
+                  lineWidth: 1
+              },
+              yAxis: {
+                  min: 0,
+                  title: {
+                      text: ' ',
+                      align: 'high'
+                  },
+                  labels: {
+                      overflow: 'justify'
+                  },
+                  gridLineWidth: 1
+              },
+              plotOptions: {
+                  bar: {
+                      borderRadius: '50%',
+                      dataLabels: {
+                          enabled: true
+                      },
+                      groupPadding: 0.1,
+                      animation: false
+                  }
+              },
+              legend: {
+                  // layout: 'vertical',
+                  // align: 'right',
+                  // verticalAlign: 'top',
+                  // x: 0,
+                  // y: 40,
+                  // floating: false,
+                  // borderWidth: 1,
+                  // backgroundColor:
+                  //     Highcharts.defaultOptions.legend.backgroundColor || '#FFFFFF',
+                  // shadow: true
+                  enabled: false
+              },
+              credits: {
+                  enabled: false
+              },
+              series: this.streak_distance,
+              exporting: {
+                enabled: false
+              }
+          });
+
+          Highcharts.chart('streak_cost_chart', {
+              chart: {
+                  type: 'bar',
+                  zooming:{
+                    type: "y"
+                  }
+              },
+              credits: {
+                  enabled: false
+                },
+
+              title: {
+                  text: 'Recovery Risk',
+                  align: 'center'
+              },
+              xAxis: {
+                  categories: [' '],
+                  title: {
+                      text: null
+                  },
+                  gridLineWidth: 1,
+                  lineWidth: 1
+              },
+              yAxis: {
+                  min: 0,
+                  title: {
+                      text: ' ',
+                      align: 'high'
+                  },
+                  labels: {
+                      overflow: 'justify'
+                  },
+                  gridLineWidth: 1
+              },
+              plotOptions: {
+                  bar: {
+                      borderRadius: '50%',
+                      dataLabels: {
+                          enabled: true
+                      },
+                      groupPadding: 0.1,
+                      animation: false
+
+                  }
+              },
+              legend: {
+                  // layout: 'vertical',
+                  // align: 'right',
+                  // verticalAlign: 'top',
+                  // x: 0,
+                  // y: 40,
+                  // floating: false,
+                  // borderWidth: 1,
+                  // backgroundColor:
+                  //     Highcharts.defaultOptions.legend.backgroundColor || '#FFFFFF',
+                  // shadow: true
+                  enabled: false
+              },
+              credits: {
+                  enabled: false
+              },
+              series:this.bar_chart.map(x => ({
+  name: x.name,
+  data: [ parseFloat((this.user_bet * (this.increase_num ** parseInt(x.name))).toFixed(4))]
+})),
+              exporting: {
+                enabled: false
+              }
+          });
+
+            
+          })
+          .catch(function (error) {
+            // handle error
+            console.log(error);
+          })
+          .finally(() => {
+            // always executed
+            
+            this.loading = false;
+          });
+
+      },
+      update_chart() {
+        this.chart = []
+        this.simulate()
+      },
+    },
+    watch: {
+
+    },
+    created() {
+      // Make a request for a user with a given ID
+      axios.get('/api/example_api_endpoint')
+        .then(function (response) {
+          // handle success
+          console.log(response);
+          var message = JSON.parse(JSON.stringify(response['data']))
+          console.log(Object.values(this.numbers))
+        })
+        .catch(function (error) {
+          // handle error
+          console.log(error);
+        })
+        .finally(function () {
+          // always executed
+        });
+    },
+    mounted() {
+      // Highcharts.chart('chart', {
+
+      //   title: {
+      //     text: 'Simulation',
+      //     align: 'center'
+      //   },
+
+      //   subtitle: {
+      //     text: "Outcome",
+      //     align: 'center'
+      //   },
+      //   /*
+      //       yAxis: {
+      //           title: {
+      //               text: '$'
+      //           }
+      //       },
+      //   */
+      //   xAxis: {
+      //     accessibility: {
+      //       rangeDescription: 'Rolls'
+      //     }
+      //   },
+
+      //   legend: {
+      //     layout: 'vertical',
+      //     align: 'center',
+      //     verticalAlign: 'bottom'
+      //   },
+
+      //   plotOptions: {
+      //     series: {
+      //       label: {
+      //         connectorAllowed: false
+      //       },
+      //       pointStart: 1
+      //     }
+      //   },
+
+      //   series: [{
+      //     name: 'Results',
+      //     data: this.chart
+      //   }],
+      //   boost: {
+      //     useGPUTranslations: false
+      //   },
+      //   turboThreshold: 100000,
+      //   responsive: {
+      //     rules: [{
+      //       condition: {
+      //         maxWidth: 500,
+      //         maxHeight: 5000,
+      //       },
+      //       chartOptions: {
+      //         legend: {
+      //           layout: 'horizontal',
+      //           align: 'center',
+      //           verticalAlign: 'bottom'
+      //         }
+      //       }
+      //     }]
+      //   }
+
+      // });
+
+
+    },
+    computed: {
+
+    }
+  }).mount('#app')
+</script>
+
+</html>
