@@ -3,8 +3,9 @@ import os
 import sys
 import random
 from flask import Flask, render_template, render_template_string, request, jsonify
-import numpy as np
+# import numpy as np
 import random
+import json
 
 app = Flask(__name__)
 # history = []
@@ -27,17 +28,17 @@ def index():
         return render_template_string(html)
 
 def spin_calculate(user_amt, bet, number, winnings, history):
-    # all_numbers = []
-    # for i in range(0,10000):
-    #     all_numbers.append(i)
-    # status = ''
-    # result = all_numbers[random.randint(0,len(all_numbers)-1)]/100
+    all_numbers = []
+    for i in range(0,10000):
+        all_numbers.append(i)
+    status = ''
+    result = all_numbers[random.randint(0,len(all_numbers)-1)]/100
 
     # Generate the array with numpy
-    all_numbers = np.arange(0, 10000) / 100
+    # all_numbers = np.arange(0, 10000) / 100
 
-    # Select a random element
-    result = np.random.choice(all_numbers)
+    # # Select a random element
+    # result = np.random.choice(all_numbers)
     
     if result > int(number):
         user_amt = user_amt + (bet * (winnings - 1))
@@ -194,7 +195,9 @@ def simulate():
         streak_distance.append({'name':str(item),'data':[round(sum(streak_values[item]) / len(streak_values[item]), 4)]})
 
     # Return the modified data as JSON
-    return jsonify({'chart': data,'stats':stats, 'bar_chart': bar_chart, 'streak_distance': streak_distance})
+    # return jsonify({'chart': data,'stats':stats, 'bar_chart': bar_chart, 'streak_distance': streak_distance})
+    return json.dumps({'chart': data,'stats':stats, 'bar_chart': bar_chart, 'streak_distance': streak_distance})
+
 
 
 if __name__ == '__main__':   
