@@ -2,12 +2,25 @@ from http.server import HTTPServer, SimpleHTTPRequestHandler
 import os
 import sys
 import random
-from flask import Flask, render_template, render_template_string, request, jsonify
+from flask import Flask, render_template, render_template_string, request, jsonify, send_file, make_response
+from werkzeug.utils import secure_filename
 # import numpy as np
 import random
 import json
 
+
 app = Flask(__name__)
+MODULE_FOLDER = '/python_modules/'
+ 
+# getting the name of the directory
+# where the this file is present.
+path = os.path.dirname(os.path.realpath(__file__))
+
+if os.path.isdir(path + MODULE_FOLDER):
+    MODULE_FOLDER = path + MODULE_FOLDER
+else:
+    print('module folder not found at: ' + os.getcwd())
+
 # history = []
 
 # Routes
@@ -148,62 +161,114 @@ def example_api_endpoint():
     # Return the modified data as JSON
     return jsonify({'result': data})
 
+@app.route("/api/get_modules", methods=['GET'])
+def return_module():
+    try:
+        print(f"MODULE_FOLDER type: {type(MODULE_FOLDER)}, value: {MODULE_FOLDER}")  # Debugging output
+        filename = os.path.join(MODULE_FOLDER, 'run_cython.py')
+        print(f"Filename type: {type(filename)}, value: {filename}")  # Debugging output
+        if os.path.isfile(filename):
+            return send_file(filename, as_attachment=True)
+        else:
+            return make_response(f"File '{filename}' not found.", 404)
+    except Exception as e:
+        app.logger.error(f"Failed to serve file: {e}")  # Log the error for debugging
+        return make_response(f"Error: {str(e)}", 500)
+
+@app.route("/api/get_wheel", methods=['GET'])
+def return_wheel():
+    wheel_filename = 'cython_modules/cython_modules-0.1-py3-none-any.whl'
+    try:
+        return send_file(
+            path_or_file=os.path.join(MODULE_FOLDER, wheel_filename),
+            as_attachment=True,
+            download_name=wheel_filename  # Suggested name for the file to be downloaded as
+        )
+    except Exception as e:
+        return str(e), 404
+
 @app.route('/api/simulate', methods=['POST'])
 def simulate():
-    # Get the data from the request
-    # data = request.json.get('data') # for POST requests with data
-    number = request.json['number']
-    winnings = request.json['winnings']
-    increase = request.json['increase']
-    user_bet = request.json['user_bet']
-    rolls = request.json['rolls']
-    recovery_rolls = request.json['recovery_rolls']
-    max_losing_streak = request.json['max_losing_streak']
+    # import sys
+    # import os
 
-    # Perform data processing
+    # # getting the name of the directory
+    # # where the this file is present.
+    # current = os.path.dirname(os.path.realpath(__file__))
+    # print(current + '/templates/')
 
-    data, stats, streaks = calculate(user_bet, number, winnings, increase, rolls, recovery_rolls, max_losing_streak)
+    # # adding the parent directory to 
+    # # the sys.path.
+    # sys.path.append(current + '/templates/')
 
-    bar_dict = {}
-    for item in streaks:
-        if item in bar_dict:
-            bar_dict[item] = [bar_dict[item][0] + 1]
-        else:
-            bar_dict[item] = [1]
+    from cython_modules import run_python
 
-    bar_dict = dict(sorted(bar_dict.items()))
-    del bar_dict[0]
+    return run_python.main(    
+        request.json['number'],
+        request.json['winnings'],
+        request.json['increase'],
+        request.json['user_bet'],
+        request.json['rolls'],
+        request.json['recovery_rolls'],
+        request.json['max_losing_streak'],
+)
 
-    bar_chart = []
-    streak_values = {}
-    for field in bar_dict:
-        bar_chart.append({'name':str(field),'data':bar_dict[field]})
-        count = 0
-        streak_values[field] = []
-        for item in streaks:
-            if item == field:
-                streak_values[item].append(count)
-                count = 0
-            count += 1
-            # if count > len(streaks):
-            #     streak_values[item].append(count)
-            #     count = 0
+    # # Get the data from the request
+    # # data = request.json.get('data') # for POST requests with data
+    # number = request.json['number']
+    # winnings = request.json['winnings']
+    # increase = request.json['increase']
+    # user_bet = request.json['user_bet']
+    # rolls = request.json['rolls']
+    # recovery_rolls = request.json['recovery_rolls']
+    # max_losing_streak = request.json['max_losing_streak']
+
+    # # Perform data processing
+
+    # data, stats, streaks = calculate(user_bet, number, winnings, increase, rolls, recovery_rolls, max_losing_streak)
+
+    # bar_dict = {}
+    # for item in streaks:
+    #     if item in bar_dict:
+    #         bar_dict[item] = [bar_dict[item][0] + 1]
+    #     else:
+    #         bar_dict[item] = [1]
+
+    # bar_dict = dict(sorted(bar_dict.items()))
+    # del bar_dict[0]
+
+    # bar_chart = []
+    # streak_values = {}
+    # for field in bar_dict:
+    #     bar_chart.append({'name':str(field),'data':bar_dict[field]})
+    #     count = 0
+    #     streak_values[field] = []
+    #     for item in streaks:
+    #         if item == field:
+    #             streak_values[item].append(count)
+    #             count = 0
+    #         count += 1
+    #         # if count > len(streaks):
+    #         #     streak_values[item].append(count)
+    #         #     count = 0
 
 
-    streak_distance = []
-    for item in streak_values:
-        streak_distance.append({'name':str(item),'data':[round(sum(streak_values[item]) / len(streak_values[item]), 4)]})
+    # streak_distance = []
+    # for item in streak_values:
+    #     streak_distance.append({'name':str(item),'data':[round(sum(streak_values[item]) / len(streak_values[item]), 4)]})
 
-    # Return the modified data as JSON
-    # return jsonify({'chart': data,'stats':stats, 'bar_chart': bar_chart, 'streak_distance': streak_distance})
-    return json.dumps({'chart': data,'stats':stats, 'bar_chart': bar_chart, 'streak_distance': streak_distance})
+    # # Return the modified data as JSON
+    # # return jsonify({'chart': data,'stats':stats, 'bar_chart': bar_chart, 'streak_distance': streak_distance})
+    # return json.dumps({'chart': data,'stats':stats, 'bar_chart': bar_chart, 'streak_distance': streak_distance})
 
-
+# import server_cython
+# import os
 
 if __name__ == '__main__':   
     pid_file = f'{os.path.expanduser("~")}/flask_server.pid'
     with open(pid_file, 'w') as f:
         f.write(str(os.getpid()))  # Write the PID to the file
 
-    app.run(debug=True)    
+    # server_cython.app.run(debug=True)  
+    app.run(debug=True)  
     

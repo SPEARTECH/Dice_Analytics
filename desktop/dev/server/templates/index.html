@@ -278,7 +278,14 @@
       </div>
     </div>
   </main>
-
+  <main v-else-if="loading_pyodide === true " class=" lg:pl-72  flex justify-center items-center min-h-screen">
+    <div class="px-4 sm:px-6 lg:px-8 flex justify-center items-center">
+      <!-- Your content -->
+      <div  class="flex justify-center items-center w-full h-full">
+        <label class="text-xl">Generating Simulation...</label>
+      </div>
+    </div>
+  </main>
 
   <main v-show="loading === false " class=" lg:pl-72">
     <div class="px-4 sm:px-6 lg:px-8">
@@ -319,7 +326,7 @@ document.addEventListener('contextmenu', function(event) {
 </script> -->
 <script>
   const { createApp } = Vue
-
+  const pyodide = async () => await loadPyodide();
   createApp({
     delimiters: ['[[', ']]'],
     data() {
@@ -439,7 +446,7 @@ document.addEventListener('contextmenu', function(event) {
         sidebar: false,
         streak_distance: [],
         simulated: false,
-        vueVariable: 'hey this is a name!'
+        loading_pyodide: false,
       }
     },
     methods: {
@@ -451,6 +458,546 @@ document.addEventListener('contextmenu', function(event) {
         }
       },
       simulate() {
+// GETTING PYTHON FILE SERVED FROM API ENDPOINT AND IMPORTING IT TO RUN WITHIN PYODIDE
+
+//         this.simulated = true;
+//         this.loading = true;
+
+//         async function main(
+//           number,
+//           winnings,
+//           increase,
+//           user_bet,
+//           rolls,
+//           recovery_rolls,
+//           max_losing_streak,
+//         ){
+//         const pyodide = await loadPyodide();
+//         pyodide.registerJsModule("mymodule", { 
+//           number:number,
+//           winnings:winnings,
+//           increase:increase,
+//           user_bet:user_bet,
+//           rolls:rolls,
+//           recovery_rolls:recovery_rolls,
+//           max_losing_streak:max_losing_streak,
+//         });
+//         await pyodide.loadPackage("numpy")
+// //         output = await pyfetch("http://127.0.0.1:5000/api/run_python.py")
+// // content = await output.bytes()
+// // console.log(new TextDecoder().decode(content));
+//         // Downloading a single file
+// await pyodide.loadPackage("micropip"); // Load micropip package if needed
+// await pyodide.runPythonAsync(`
+// import micropip
+// await micropip.install('pyodide-http') # Ensure pyodide-http is installed
+// from pyodide.http import pyfetch
+
+// from pyodide.http import pyfetch
+// async def fetch_script():
+//   output = await pyfetch("http://127.0.0.1:5000/api/get_modules")
+//   content = await output.bytes()
+//   with open("run_cython.py", "w") as f:  # Change to "w" mode for writing text
+//       f.write(content.decode("utf-8"))  # Decode bytes to string if necessary
+//   import run_cython
+// fetch_script()
+
+// from mymodule import *
+// import run_cython
+
+// response = run_cython.main(number,winnings,increase,user_bet,rolls,recovery_rolls,max_losing_streak)
+
+//         `)
+//         const response = pyodide.globals.get('response') 
+//         // console.log(response)
+//         return response
+//       }
+
+//       main(this.selected_num,this.numbers[this.selected_num],this.increase_num,this.user_bet,this.rolls,this.recovery_rolls,this.max_losing_streak).then(response => {
+//         // console.log(response)
+//         // console.log(JSON.parse(response))
+//         this.chart = JSON.parse(response)['chart']
+//         // console.log(this.chart)
+//         this.bar_chart = JSON.parse(response)['bar_chart']
+//         this.streak_distance = JSON.parse(response)['streak_distance']
+
+
+//         Highcharts.chart('bar_chart', {
+//               chart: {
+//                   type: 'bar',
+//                   zooming:{
+//                     type: "y"
+//                   }
+//               },
+//               credits: {
+//                   enabled: false
+//                 },
+
+//               title: {
+//                   text: 'Losing Streak Total',
+//                   align: 'center'
+//               },
+//               xAxis: {
+//                   categories: [' '],
+//                   title: {
+//                       text: null
+//                   },
+//                   gridLineWidth: 1,
+//                   lineWidth: 1
+//               },
+//               yAxis: {
+//                   min: 0,
+//                   title: {
+//                       text: ' ',
+//                       align: 'high'
+//                   },
+//                   labels: {
+//                       overflow: 'justify'
+//                   },
+//                   gridLineWidth: 1
+//               },
+//               plotOptions: {
+//                   bar: {
+//                       borderRadius: '50%',
+//                       dataLabels: {
+//                           enabled: true
+//                       },
+//                       groupPadding: 0.1,
+//                       animation: true
+
+//                   }
+//               },
+//               legend: {
+//                   // layout: 'vertical',
+//                   // align: 'right',
+//                   // verticalAlign: 'top',
+//                   // x: 0,
+//                   // y: 40,
+//                   // floating: false,
+//                   // borderWidth: 1,
+//                   // backgroundColor:
+//                   //     Highcharts
+//                   enabled: false
+//               },
+//               credits: {
+//                   enabled: false
+//               },
+//               series: this.bar_chart,
+//               exporting: {
+//                 enabled: false
+//               }
+//           });
+
+
+//             Highcharts.chart('chart', {
+//               title: {
+//                 text: 'Simulation',
+//                 align: 'center'
+//               },
+//               chart:{
+//                 zooming: {
+//                   type: "x"
+//                 }
+//               },
+//               // subtitle: {
+//               //   text: 'Outcome',
+//               //   align: 'center'
+//               // },
+//               credits: {
+//                   enabled: false
+//                 },
+
+//                   yAxis: {
+//                       title: {
+//                           text: ' '
+//                       }
+//                   },
+
+//               xAxis: {
+//                 accessibility: {
+//                   rangeDescription: 'Rolls'
+//                 }
+//               },
+
+//               legend: {
+//                 // layout: 'vertical',
+//                 // align: 'center',
+//                 // verticalAlign: 'bottom'
+//                 enabled: false
+//               },
+
+//               plotOptions: {
+//                 series: {
+//                   label: {
+//                     connectorAllowed: false
+//                   },
+//                   pointStart: 1,
+//                   animation: true
+
+//                 }
+//               },
+
+//               series: [{
+//                 name: 'Results',
+//                 data: this.chart,
+//                 color: "#4A00FF",
+//               }],
+//               boost: {
+//                 useGPUTranslations: false
+//               },
+//               turboThreshold: 100000,
+
+//               responsive: {
+//                 rules: [{
+//                   condition: {
+//                     maxWidth: 500,
+//                     maxHeight: 5000,
+//                   },
+//                   chartOptions: {
+//                     legend: {
+//                       layout: 'horizontal',
+//                       align: 'center',
+//                       verticalAlign: 'bottom'
+//                     }
+//                   }
+//                 }]
+//               },
+//               exporting: {
+//                 enabled: true
+//               }
+//             })
+
+//             Highcharts.chart('logarithmic_chart', {
+
+//               title: {
+//                   text: 'Win Ratios',
+//                   align: 'center'
+//               },
+
+//               yAxis: {
+//                   title: {
+//                       text: ' '
+//                   }
+//               },
+
+//               xAxis: {
+//                 title:{
+//                   text: ' '
+//                 },
+//                   accessibility: {
+//                       rangeDescription: 'Range: 2010 to 2020'
+//                   }
+//               },
+
+//               legend: {
+//                   // layout: 'vertical',
+//                   // align: 'right',
+//                   // verticalAlign: 'middle'
+//                   enabled: false
+//               },
+
+//                 credits: {
+//                   enabled: false
+//                 },
+
+
+//               plotOptions: {
+//                   series: {
+//                       label: {
+//                           connectorAllowed: false
+//                       },
+//                       pointStart: 2,
+//                       animation: true,
+//                       color: "#4A00FF",
+//                       marker: {
+//                         enabled: true,
+//                         radius: 0
+//                       }
+//                   }
+//               },
+
+//               series: [{
+//                   name: 'Win Ratio',
+//                   data: Object.values(this.numbers).map(value => value === this.numbers[parseInt(this.selected_num)] ? {y: value, marker: {radius: 6}} : value)
+//               }],
+
+//               responsive: {
+//                   rules: [{
+//                       condition: {
+//                           maxWidth: 500
+//                       },
+//                       chartOptions: {
+//                           legend: {
+//                               layout: 'horizontal',
+//                               align: 'center',
+//                               verticalAlign: 'bottom'
+//                           }
+//                       }
+//                   }]
+//               },
+//               exporting: {
+//                   enabled: false
+//                 }
+
+
+//               });
+       
+//             Highcharts.chart('recovery_chart', {
+
+//             title: {
+//                 text: 'Recovery Ratios',
+//                 align: 'center'
+//             },
+//             credits: {
+//                   enabled: false
+//                 },
+
+//             yAxis: {
+//                 title: {
+//                     text: ' '
+//                 }
+//             },
+
+//             xAxis: {
+//               title:{
+//                 text: ' '
+//               },
+//                 accessibility: {
+//                     rangeDescription: 'Range: 2010 to 2020'
+//                 }
+//             },
+
+//             legend: {
+//                 // layout: 'vertical',
+//                 // align: 'right',
+//                 // verticalAlign: 'middle'
+//                 enabled: false
+//             },
+
+//             plotOptions: {
+//                 series: {
+//                     label: {
+//                         connectorAllowed: false
+//                     },
+//                     pointStart: 2,
+//                     animation: true,
+//                     color: "#4A00FF",
+//                     marker: {
+//                         enabled: true,
+//                         radius: 0
+//                       }
+
+
+//                 }
+//             },
+
+//             series: [{
+//                 name: 'Recovery Ratio',
+//                 data: Object.values(this.numbers).map(value => value === this.numbers[parseInt(this.selected_num)] ? {y: parseFloat(((((1/(value-1))+1)/this.recovery_rolls)).toFixed(4)), marker: {radius: 6}} : parseFloat(((((1/(value-1))+1)/this.recovery_rolls)).toFixed(4)))
+//             }],
+
+//             responsive: {
+//                 rules: [{
+//                     condition: {
+//                         maxWidth: 500
+//                     },
+//                     chartOptions: {
+//                         legend: {
+//                             layout: 'horizontal',
+//                             align: 'center',
+//                             verticalAlign: 'bottom'
+//                         }
+//                     }
+//                 }]
+//             },
+//             exporting: {
+//                 enabled: false
+//               }
+
+
+//             });
+          
+//             Highcharts.chart('streak_distance_chart', {
+//               chart: {
+//                   type: 'bar',
+//                   zooming:{
+//                     type: "y"
+//                   }
+//               },
+//               credits: {
+//                   enabled: false
+//                 },
+
+//               title: {
+//                   text: 'Average Occurance',
+//                   align: 'center'
+//               },
+//               xAxis: {
+//                   categories: [' '],
+//                   title: {
+//                       text: null
+//                   },
+//                   gridLineWidth: 1,
+//                   lineWidth: 1
+//               },
+//               yAxis: {
+//                   min: 0,
+//                   title: {
+//                       text: ' ',
+//                       align: 'high'
+//                   },
+//                   labels: {
+//                       overflow: 'justify'
+//                   },
+//                   gridLineWidth: 1
+//               },
+//               plotOptions: {
+//                   bar: {
+//                       borderRadius: '50%',
+//                       dataLabels: {
+//                           enabled: true
+//                       },
+//                       groupPadding: 0.1,
+//                       animation: true
+//                   }
+//               },
+//               legend: {
+//                   // layout: 'vertical',
+//                   // align: 'right',
+//                   // verticalAlign: 'top',
+//                   // x: 0,
+//                   // y: 40,
+//                   // floating: false,
+//                   // borderWidth: 1,
+//                   // backgroundColor:
+//                   //     Highcharts.defaultOptions.legend.backgroundColor || '#FFFFFF',
+//                   // shadow: true
+//                   enabled: false
+//               },
+//               credits: {
+//                   enabled: false
+//               },
+//               series: this.streak_distance,
+//               exporting: {
+//                 enabled: false
+//               }
+//           });
+
+//           Highcharts.chart('streak_cost_chart', {
+//               chart: {
+//                   type: 'bar',
+//                   zooming:{
+//                     type: "y"
+//                   }
+//               },
+//               credits: {
+//                   enabled: false
+//                 },
+
+//               title: {
+//                   text: 'Recovery Risk',
+//                   align: 'center'
+//               },
+//               xAxis: {
+//                   categories: [' '],
+//                   title: {
+//                       text: null
+//                   },
+//                   gridLineWidth: 1,
+//                   lineWidth: 1
+//               },
+//               yAxis: {
+//                   min: 0,
+//                   title: {
+//                       text: ' ',
+//                       align: 'high'
+//                   },
+//                   labels: {
+//                       overflow: 'justify'
+//                   },
+//                   gridLineWidth: 1
+//               },
+//               plotOptions: {
+//                   bar: {
+//                       borderRadius: '50%',
+//                       dataLabels: {
+//                           enabled: true
+//                       },
+//                       groupPadding: 0.1,
+//                       animation: true
+
+//                   }
+//               },
+//               legend: {
+//                   // layout: 'vertical',
+//                   // align: 'right',
+//                   // verticalAlign: 'top',
+//                   // x: 0,
+//                   // y: 40,
+//                   // floating: false,
+//                   // borderWidth: 1,
+//                   // backgroundColor:
+//                   //     Highcharts.defaultOptions.legend.backgroundColor || '#FFFFFF',
+//                   // shadow: true
+//                   enabled: false
+//               },
+//               credits: {
+//                   enabled: false
+//               },
+//               series:this.bar_chart.map(x => ({
+//   name: x.name,
+//   data: [ parseFloat(((this.user_bet * (this.increase_num ** parseInt(x.name)))).toFixed(4))]
+// })),
+//               exporting: {
+//                 enabled: false
+//               }
+//           });
+//           this.loading = false;
+
+//           this.loading_pyodide = false;
+//         })
+//       },
+
+
+
+// TRYING TO RUN FLASK SERVER FROM PYODIDE (DOESNT WORK)
+
+//         async function func(){
+//           const pyodide = loadPyodide();
+//           await pyodide.runPython(`
+// import sys
+// import os
+
+// # getting the name of the directory
+// # where the this file is present.
+// current = os.path.dirname(os.path.realpath(__file__))
+ 
+// # Getting the parent directory name
+// # where the current directory is present.
+// parent = os.path.dirname(current)
+ 
+// # adding the parent directory to 
+// # the sys.path.
+// sys.path.append(parent)
+ 
+// # now we can import the module in the parent
+// # directory.
+// from server import *
+// from run_python import *
+
+// pid_file = f'{os.path.expanduser("~")}/flask_server.pid'
+// with open(pid_file, 'w') as f:
+//     f.write(str(os.getpid()))  # Write the PID to the file
+
+// app.run(debug=True)    
+
+
+// //           `)
+//         }
+
+
+// STANDARD METHOD OF CALLING API TO USE WITH CYTHON CODE ON BACKEND OR RUNNING CODE IN PYODIDE IF NO API AVAILABLE
+
         // this.chart = []
         // Make a request for a user with a given ID
         this.simulated = true;
@@ -466,10 +1013,17 @@ document.addEventListener('contextmenu', function(event) {
         })
         .then((response) => { 
           // handle success
-            // console.log(response);
+            //  console.log(JSON.parse(response['data'])['chart']);
+
+            // flask response
             this.chart = JSON.parse(JSON.stringify(response['data']['chart']))
             this.bar_chart = JSON.parse(JSON.stringify(response['data']['bar_chart']))
             this.streak_distance = JSON.parse(JSON.stringify(response['data']['streak_distance']))
+            
+            // fastapi response
+            // this.chart = JSON.parse(response['data'])['chart']
+            // this.bar_chart = JSON.parse(response['data'])['bar_chart']
+            // this.streak_distance = JSON.parse(response['data'])['streak_distance']     
             
             Highcharts.chart('bar_chart', {
               chart: {
@@ -902,9 +1456,11 @@ document.addEventListener('contextmenu', function(event) {
               }
           });
 
-            
+            this.loading = false;
           })
           .catch((error) => {
+            this.loading = false;
+            this.loading_pyodide = true;
         async function main(
           number,
           winnings,
@@ -924,28 +1480,75 @@ document.addEventListener('contextmenu', function(event) {
           recovery_rolls:recovery_rolls,
           max_losing_streak:max_losing_streak,
         });
-        // await pyodide.loadPackage("numpy")
-        await pyodide.runPythonAsync(`
+        await pyodide.loadPackage("numpy")
+
+// TRYING DIFFERENT THINGS TO IMPORT CUSTOM MODULES - CAN PROBABLY BE DELETED
+
+//         output = await pyfetch("http://127.0.0.1:5000/api/run_python.py")
+// content = await output.bytes()
+// console.log(new TextDecoder().decode(content));
+        // Downloading a single file
+// await pyodide.loadPackage("micropip"); // Load micropip package if needed
+// await pyodide.runPythonAsync(`
+// import micropip
+// await micropip.install('pyodide-http') # Ensure pyodide-http is installed
+// from pyodide.http import pyfetch
+// `);
+
+// await pyodide.runPythonAsync(`
+// from pyodide.http import pyfetch
+// async def fetch_script():
+//   output = await pyfetch("http://127.0.0.1:5000/api/get_modules")
+//   content = await output.bytes()
+//   with open("run_python.py", "w") as f:  # Change to "w" mode for writing text
+//       f.write(content.decode("utf-8"))  # Decode bytes to string if necessary
+//   import run_python
+// fetch_script()
+// `);
+// await pyodide.runPythonAsync(`
+// from mymodule import *
+// import run_python
+
+// response = run_python.main(number,winnings,increase,user_bet,rolls,recovery_rolls,max_losing_streak)
+
+//         `)
+//         const response = pyodide.globals.get('response') 
+//         // console.log(response)
+//         return response
+//       }
+      
+      // main(this.selected_num,this.numbers[this.selected_num],this.increase_num,this.user_bet,this.rolls,this.recovery_rolls,this.max_losing_streak).then(response => {
+      //   // console.log(response)
+      //   // console.log(JSON.parse(response))
+      //   this.chart = JSON.parse(response)['chart']
+      //   // console.log(this.chart)
+      //   this.bar_chart = JSON.parse(response)['bar_chart']
+      //   this.streak_distance = JSON.parse(response)['streak_distance']
+
+        
+        // pkg.do_something();
+
+        await pyodide.runPython(`
 from mymodule import *
 import os
 import sys
 import random
-#import numpy as np
+import numpy as np
 import random
 import json
 
 def spin_calculate(user_amt, bet, number, winnings, history):
-    all_numbers = []
-    for i in range(0,10000):
-        all_numbers.append(i)
-    status = ''
-    result = all_numbers[random.randint(0,len(all_numbers)-1)]/100
+    #all_numbers = []
+    #for i in range(0,10000):
+    #    all_numbers.append(i)
+    #status = ''
+    #result = all_numbers[random.randint(0,len(all_numbers)-1)]/100
 
     # Generate the array with numpy
-    #all_numbers = np.arange(0, 10000) / 100
+    all_numbers = np.arange(0, 10000) / 100
 
     # Select a random element
-    #result = np.random.choice(all_numbers)
+    result = np.random.choice(all_numbers)
     
     if result > int(number):
         user_amt = user_amt + (bet * (winnings - 1))
@@ -1086,6 +1689,23 @@ response = json.dumps({'chart': data,'stats':stats, 'bar_chart': bar_chart, 'str
 
 
 `);
+
+// // Downloading a single file
+// await pyodide.runPythonAsync(`
+//     from pyodide.http import pyfetch
+//     response = await pyfetch("https://127.0.0.1:5000/api/run_python.cp311-win_amd64.pyd")
+//     with open("run_python.cp311-win_amd64.pyd", "wb") as f:
+//         f.write(await response.bytes())
+// `)
+// pkg = pyodide.pyimport("run_python");
+// response = pkg.main();   
+// await pyodide.runPythonAsync(`
+// from mymodule import *
+// import run_python
+
+// response = run_python.main(number,winnings,increase,user_bet,rolls,recovery_rolls,max_losing_streak)
+
+//         `)
         const response = pyodide.globals.get('response') 
         // console.log(response)
         return response
@@ -1140,7 +1760,7 @@ response = json.dumps({'chart': data,'stats':stats, 'bar_chart': bar_chart, 'str
                           enabled: true
                       },
                       groupPadding: 0.1,
-                      animation: false
+                      animation: true
 
                   }
               },
@@ -1209,7 +1829,7 @@ response = json.dumps({'chart': data,'stats':stats, 'bar_chart': bar_chart, 'str
                     connectorAllowed: false
                   },
                   pointStart: 1,
-                  animation: false
+                  animation: true
 
                 }
               },
@@ -1284,7 +1904,7 @@ response = json.dumps({'chart': data,'stats':stats, 'bar_chart': bar_chart, 'str
                           connectorAllowed: false
                       },
                       pointStart: 2,
-                      animation: false,
+                      animation: true,
                       color: "#4A00FF",
                       marker: {
                         enabled: true,
@@ -1357,7 +1977,7 @@ response = json.dumps({'chart': data,'stats':stats, 'bar_chart': bar_chart, 'str
                         connectorAllowed: false
                     },
                     pointStart: 2,
-                    animation: false,
+                    animation: true,
                     color: "#4A00FF",
                     marker: {
                         enabled: true,
@@ -1435,7 +2055,7 @@ response = json.dumps({'chart': data,'stats':stats, 'bar_chart': bar_chart, 'str
                           enabled: true
                       },
                       groupPadding: 0.1,
-                      animation: false
+                      animation: true
                   }
               },
               legend: {
@@ -1501,7 +2121,7 @@ response = json.dumps({'chart': data,'stats':stats, 'bar_chart': bar_chart, 'str
                           enabled: true
                       },
                       groupPadding: 0.1,
-                      animation: false
+                      animation: true
 
                   }
               },
@@ -1530,13 +2150,13 @@ response = json.dumps({'chart': data,'stats':stats, 'bar_chart': bar_chart, 'str
               }
           });
 
-            
+          this.loading_pyodide = false;
+
       })
           })
           .finally(() => {
             // always executed
             
-            this.loading = false;
           });
 
       },
