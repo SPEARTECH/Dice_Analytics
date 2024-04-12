@@ -6,33 +6,21 @@ import time
 
 def run_with_switches():
     # Check the default browser
-    # if os.path.exists("C:/Program Files/Google/Chrome/Application/chrome.exe"):
-    #     command = [
-    #         "C:/Program Files/Google/Chrome/Application/chrome.exe", 
-    #         '--app=http://127.0.0.1:5000', 
-    #         '--disable-pinch', 
-    #         '--disable-extensions', 
-    #         '--guest'
-    #     ]
-    #     print("Running command:", command)
-    #     subprocess.Popen(command)
-    #     return
-    # elif os.path.exists("C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe"):
-    #     command = [
-    #         "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe", 
-    #         '--app=http://127.0.0.1:5000', 
-    #         '--disable-pinch', 
-    #         '--disable-extensions', 
-    #         '--guest'
-    #     ]
-    #     print("Running command:", command)
-    #     subprocess.Popen(command)
-    #     return
-
     if os.path.exists("C:/Program Files/Google/Chrome/Application/chrome.exe"):
         command = [
             "C:/Program Files/Google/Chrome/Application/chrome.exe", 
-            '--app=C:\\Users\\tyler\\Documents\\PROJECTS\\Dice_Analytics\\Dice_Analytics\\desktop\\dev\\server\\templates\\index.html', 
+            '--app=http://127.0.0.1:5000', 
+            '--disable-pinch', 
+            '--disable-extensions', 
+            '--guest'
+        ]
+        print("Running command:", command)
+        subprocess.Popen(command)
+        return
+    elif os.path.exists("C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe"):
+        command = [
+            "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe", 
+            '--app=http://127.0.0.1:5000', 
             '--disable-pinch', 
             '--disable-extensions', 
             '--guest'
@@ -65,7 +53,7 @@ def stop_previous_flask_server():
 if __name__ == '__main__':
     stop_previous_flask_server()
     
-    # subprocess.Popen(['python', f'{os.path.dirname(os.path.realpath(__file__))}/server/server.py'])
+    subprocess.Popen(['python', f'{os.path.dirname(os.path.realpath(__file__))}/server/server.py'])
     # subprocess.Popen(['python', f'{os.path.dirname(os.path.realpath(__file__))}/server/fast.py'])
     # subprocess.Popen(['python', f'./server/server.py'])
 
