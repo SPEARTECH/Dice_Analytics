@@ -117,6 +117,10 @@
                 <input class="join-item btn" type="radio" name="options" aria-label="Partial Martingale" @click="selected_method = 'partial_martingale' " />
               </div> -->
               <div class="flex flex-col w-full">
+                <div class="flex justify-between mb-4 spacing-4" v-if="selected_num != '' ">
+                  <h1>Pyodide</h1>
+                  <input type="checkbox" class="toggle" @change="toggle_pyodide()" />
+                </div>    
                 <div class="divider">Stats</div>
                 <div class="flex justify-between mb-4 spacing-4" v-if="selected_num != '' ">
                   <h1>Payout Ratio</h1>
@@ -203,7 +207,12 @@
             <input class="join-item btn" type="radio" name="options" aria-label="Martingale" checked @click="selected_method = 'martingale' " />
             <input class="join-item btn" type="radio" name="options" aria-label="Partial Martingale" @click="selected_method = 'partial_martingale' " />
           </div> -->
+
           <div class="flex flex-col w-full">
+            <div class="flex justify-between mb-4 spacing-4" v-if="selected_num != '' ">
+              <h1>Pyodide</h1>
+              <input type="checkbox" class="toggle" @change="toggle_pyodide()" />
+            </div>
             <div class="divider">Stats</div>
             <div class="flex justify-between mb-4 spacing-4" v-if="selected_num != '' ">
               <h1>Payout Ratio</h1>
@@ -447,9 +456,17 @@ document.addEventListener('contextmenu', function(event) {
         streak_distance: [],
         simulated: false,
         loading_pyodide: false,
+        pyodide: false,
       }
     },
     methods: {
+      toggle_pyodide(){
+        if (this.pyodide == false){
+          this.pyodide = true;
+        } else {
+          this.pyodide = false;
+        }
+      },
       sidebar_toggle(){
         if (this.sidebar == false){
           this.sidebar = true;
@@ -1012,6 +1029,7 @@ document.addEventListener('contextmenu', function(event) {
           max_losing_streak: this.max_losing_streak,
         })
         .then((response) => { 
+          console.log(response.data)
           // handle success
             //  console.log(JSON.parse(response['data'])['chart']);
 
@@ -1458,10 +1476,12 @@ document.addEventListener('contextmenu', function(event) {
 
             this.loading = false;
           })
+          // RUN IF API FAILS
           .catch((error) => {
             this.loading = false;
             this.loading_pyodide = true;
         async function main(
+          pyodide_status,
           number,
           winnings,
           increase,
@@ -1470,6 +1490,8 @@ document.addEventListener('contextmenu', function(event) {
           recovery_rolls,
           max_losing_streak,
         ){
+          if (pyodide_status == true){
+
         const pyodide = await loadPyodide();
         pyodide.registerJsModule("mymodule", { 
           number:number,
@@ -1528,6 +1550,7 @@ document.addEventListener('contextmenu', function(event) {
         
         // pkg.do_something();
 
+        // RUNNING PYTHON IN BROWSER AND ASSIGNING 'response' VARIABLE FOR USING AFTER
         await pyodide.runPython(`
 from mymodule import *
 import os
@@ -1690,6 +1713,13 @@ response = json.dumps({'chart': data,'stats':stats, 'bar_chart': bar_chart, 'str
 
 `);
 
+const response = pyodide.globals.get('response') 
+// console.log(response)
+return response
+
+} else {
+
+
 // // Downloading a single file
 // await pyodide.runPythonAsync(`
 //     from pyodide.http import pyfetch
@@ -1706,18 +1736,231 @@ response = json.dumps({'chart': data,'stats':stats, 'bar_chart': bar_chart, 'str
 // response = run_python.main(number,winnings,increase,user_bet,rolls,recovery_rolls,max_losing_streak)
 
 //         `)
-        const response = pyodide.globals.get('response') 
-        // console.log(response)
-        return response
+
+// TRYING TO RUN IN JAVASCRIPT FOR PERFORMANCE COMPARISON
+
+function spin_calculate(user_amt, bet, number, winnings, history){
+
+    //all_numbers = []
+    //for i in range(0,10000):
+    //    all_numbers.append(i)
+    //status = ''
+    //result = all_numbers[random.randint(0,len(all_numbers)-1)]/100
+
+    // Generate the array with numpy
+    // var all_numbers = np.arange(0, 10000) / 100
+
+    // Select a random element
+    // var result = np.random.choice(all_numbers)
+
+    let allNumbers = [];
+    for (let i = 0; i < 10000; i++) {
+        allNumbers.push(i / 100);
+    }
+    // Select a random element from the array
+    let randomIndex = Math.floor(Math.random() * allNumbers.length);
+    let result = allNumbers[randomIndex];
+    // console.log(result)
+    
+    if (result > parseInt(number)){
+
+      user_amt = user_amt + (bet * (winnings - 1))
+      history.push(user_amt)
+      status = 'win'
+      outcome = parseInt(bet * (winnings - 1))
+      // print(f"\t-{outcome} \tTotal: {int(user_amt)}.00\t {result}\t FIRST TWELVE\t Bet:{bet}")
+    } else {
+
+      user_amt = user_amt - (bet)
+      history.push(user_amt)
+      status = 'loss'
+      outcome = parseInt(bet)
+      // print(f"\t-{outcome} \tTotal: {int(user_amt)}.00\t {result}\t ZEROS\t\t Bet:{bet}")
+    }
+      
+      return {user_amt, status, result, history}
+  }
+
+function calculate(user_bet, number, winnings, increase, rolls, recovery_rolls, max_losing_streak){
+
+
+    console.log('Simulating '+rolls+' rolls over '+number+' with '+increase+'% increase and '+user_bet+' starting bet...')
+    var history = []
+    var user_amt = 0
+    var bet = user_bet
+    var wins = 0
+    var losses = 0
+    var percentage = 0
+    var win_amt = 0
+    var loss_amt = 0
+    var ratio = 0
+    var recovery_numbers = {}
+    // recovery_count = 0
+    var recovery_rolls = parseInt(recovery_rolls)
+    var losing_streak = 0
+    var streaks = []
+    for (var i of Array(rolls).keys()){
+        i = i + 1
+        // sys.stdout.write(f"\Roll {i}/{rolls}")
+        var {user_amt, status, result, history} = spin_calculate(user_amt, bet, number, winnings, history)
+        // console.log(history)
+        if (status == 'loss'){
+
+        
+            losses = losses + 1
+            loss_amt = loss_amt + bet 
+            bet = bet * increase       
+            // if bet in recovery_numbers:
+            //     recovery_numbers[bet] += recovery_rolls
+            // else:
+            //     recovery_numbers[bet] = recovery_rolls
+            recovery_numbers[bet] = recovery_rolls
+            // recovery_count = recovery_rolls
+            losing_streak += 1 * recovery_rolls
+            if (losing_streak >= max_losing_streak * recovery_rolls && max_losing_streak != 0){
+
+              bet = user_bet
+              streaks.push(losing_streak)
+              losing_streak = 0
+            } else {
+              streaks.push(0)
+            }
+        } else {
+          if (losing_streak > 0){
+            streaks.push(losing_streak)
+            losing_streak = 0
+          } else {
+            streaks.push(0)
+            wins = wins + 1
+            win_amt = win_amt + (bet * (winnings - 1)) 
+            // recovery_count = recovery_count - 1
+            // if recovery_count <= 0:
+            //     bet = user_bet 
+            //     recovery_count = 0
+            if (bet in recovery_numbers){
+              recovery_numbers[bet] -= 1
+            }
+            if (recovery_numbers[bet] <= 0){
+              recovery_numbers[bet] = 0
+              // bet = bet / increase
+              // if bet <= user_bet:
+              //     bet = user_bet
+              bet = user_bet    
+            }
+          }
+        }
+    }
+    if (losses != 0){
+      var percentage = Math.round(wins/(wins+(losses))*100)
+      var ratio_avg = Math.round((win_amt/wins)/(loss_amt/losses))
+      var ratio = Math.round((win_amt)/(loss_amt))
+    } else {
+      var percentage = 100
+      var ratio = 1
+    }
+    // sys.stdout.flush()
+
+    // print(f'\\nWin %: {percentage}\\nW/L ratio (Avg): {ratio_avg}/1.0\\nW/L ratio (Total): {ratio}/1.0\\nWin $: {win_amt}\\nLoss $: {loss_amt}\\nFinal $: {int(user_amt)}')
+    
+    stats = {
+        percentage : percentage,
+        ratio_avg : ratio_avg,
+        ratio : ratio,
+        win_amt : win_amt,
+        loss_amt : loss_amt,
+        final_amt : parseInt(user_amt),
+        profitability_ratio_avg : Math.round((percentage + (ratio_avg * 100))/100-1),
+        profitability_ratio : Math.round((percentage + (ratio * 100))/100-1),
+    }
+    console.log(history)
+    data = history
+    return {data, stats, streaks}
+  }
+// Get the data from the request
+// data = request.json.get('data') # for POST requests with data
+
+// Perform data processing
+
+var {data, stats, streaks} = calculate(user_bet, number, winnings, increase, rolls, recovery_rolls, max_losing_streak)
+console.log(streaks)
+var bar_dict = {}
+for (var item of streaks){
+
+  if (Object.keys(bar_dict).some(x => x === item)){
+    bar_dict[item] = [bar_dict[item][0] + 1]
+  } else {
+    bar_dict[item] = [1]
+  }
+}
+
+// Function to sort an object by its keys
+function sortObjectByKeys(obj) {
+    const sortedKeys = Object.keys(obj).sort();
+    const sortedObj = {};
+    for (const key of sortedKeys) {
+        sortedObj[key] = obj[key];
+    }
+    return sortedObj;
+}
+
+bar_dict = sortObjectByKeys(bar_dict);
+console.log("Before delete:", bar_dict);
+
+// Delete the property with key '0'
+delete bar_dict['0'];  // JavaScript object keys are strings, even if they represent numbers
+
+console.log("After delete:", bar_dict);
+
+var bar_chart = []
+var streak_values = {}
+for (var field of Object.keys(bar_dict)){
+  bar_chart.push({name:field.toString(),data:bar_dict[field]})
+  var count = 0
+  streak_values[field] = []
+  for (var item of streaks){
+    if (item == field){
+      streak_values[item].push(count)
+      count = 0
+      count += 1
+    }
+  }
+}
+
+function sumArray(array) {
+    let sum = 0;
+    for (let i = 0; i < array.length; i++) {
+        sum += array[i];
+    }
+    return sum;
+}
+
+var streak_distance = []
+for (var item of Object.keys(streak_values)){
+  streak_distance.push({name:item.toString(),data:[Math.round(sumArray(streak_values[item]) / (streak_values[item]).length)]})
+}
+
+// Return the modified data as JSON
+response = {chart: data,stats:stats, bar_chart: bar_chart, streak_distance: streak_distance}
+
+// console.log(response)
+return response
+
+}
+
       }
       
-      main(this.selected_num,this.numbers[this.selected_num],this.increase_num,this.user_bet,this.rolls,this.recovery_rolls,this.max_losing_streak).then(response => {
-        // console.log(response)
-        // console.log(JSON.parse(response))
-        this.chart = JSON.parse(response)['chart']
-        // console.log(this.chart)
-        this.bar_chart = JSON.parse(response)['bar_chart']
-        this.streak_distance = JSON.parse(response)['streak_distance']
+      main(this.pyodide,this.selected_num,this.numbers[this.selected_num],this.increase_num,this.user_bet,this.rolls,this.recovery_rolls,this.max_losing_streak).then(response => {
+        if (this.pyodide == true){
+          // PYODIDE METHOD OF HANDLING RESPONSE FROM DICT
+          this.chart = JSON.parse(response)['chart']
+          this.bar_chart = JSON.parse(response)['bar_chart']
+          this.streak_distance = JSON.parse(response)['streak_distance']
+        } else {
+          // JAVASCRIPT METHOD OF HANDLING RESPONSE FROM JAVASCRIPT CODE
+          this.chart = response['chart']
+          this.bar_chart = response['bar_chart']
+          this.streak_distance = response['streak_distance']
+        }
 
         Highcharts.chart('bar_chart', {
               chart: {
@@ -1784,9 +2027,8 @@ response = json.dumps({'chart': data,'stats':stats, 'bar_chart': bar_chart, 'str
                 enabled: false
               }
           });
-
-
-            Highcharts.chart('chart', {
+            
+        Highcharts.chart('chart', {
               title: {
                 text: 'Simulation',
                 align: 'center'
@@ -1864,7 +2106,7 @@ response = json.dumps({'chart': data,'stats':stats, 'bar_chart': bar_chart, 'str
               }
             })
 
-            Highcharts.chart('logarithmic_chart', {
+        Highcharts.chart('logarithmic_chart', {
 
               title: {
                   text: 'Win Ratios',
@@ -1939,7 +2181,7 @@ response = json.dumps({'chart': data,'stats':stats, 'bar_chart': bar_chart, 'str
 
               });
        
-            Highcharts.chart('recovery_chart', {
+        Highcharts.chart('recovery_chart', {
 
             title: {
                 text: 'Recovery Ratios',
@@ -2014,7 +2256,7 @@ response = json.dumps({'chart': data,'stats':stats, 'bar_chart': bar_chart, 'str
 
             });
           
-            Highcharts.chart('streak_distance_chart', {
+        Highcharts.chart('streak_distance_chart', {
               chart: {
                   type: 'bar',
                   zooming:{
@@ -2080,7 +2322,7 @@ response = json.dumps({'chart': data,'stats':stats, 'bar_chart': bar_chart, 'str
               }
           });
 
-          Highcharts.chart('streak_cost_chart', {
+        Highcharts.chart('streak_cost_chart', {
               chart: {
                   type: 'bar',
                   zooming:{

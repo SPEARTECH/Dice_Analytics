@@ -52,7 +52,7 @@ def stop_previous_flask_server():
 
 if __name__ == '__main__':
     stop_previous_flask_server()
-    
+        
     subprocess.Popen(['python', f'{os.path.dirname(os.path.realpath(__file__))}/server/server.py'])
     # subprocess.Popen(['python', f'{os.path.dirname(os.path.realpath(__file__))}/server/fast.py'])
     # subprocess.Popen(['python', f'./server/server.py'])

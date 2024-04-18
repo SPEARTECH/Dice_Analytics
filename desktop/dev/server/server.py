@@ -7,7 +7,8 @@ from werkzeug.utils import secure_filename
 # import numpy as np
 import random
 import json
-
+from gevent.pywsgi import WSGIServer
+import subprocess
 
 app = Flask(__name__)
 MODULE_FOLDER = '/python_modules/'
@@ -187,6 +188,66 @@ def return_wheel():
     except Exception as e:
         return str(e), 404
 
+import subprocess
+import json
+
+def run_go_program(number, winnings, increase, user_bet, rolls, recovery_rolls, max_losing_streak):
+    # Path to the compiled Go executable
+    go_executable_path = "C:\\Users\\tyler\\Documents\\PROJECTS\\Dice_Analytics\\Dice_Analytics\\desktop\\dev\\server\\go_modules\\go_module.exe"  # Replace this with the path to your Go executable
+
+    # Run the Go executable and capture its output
+    process = subprocess.Popen([
+        go_executable_path,
+        "--number", str(number),
+        "--winnings", str(winnings),
+        "--increase", str(increase),
+        "--user_bet", str(user_bet),
+        "--rolls", str(rolls),
+        "--recovery_rolls", str(recovery_rolls),
+        "--max_losing_streak", str(max_losing_streak)
+    ], stdout=subprocess.PIPE)
+    output, _ = process.communicate()
+
+    # Decode the output from bytes to string
+    output_str = output.decode("utf-8")
+
+    # Parse the JSON output
+    print(output_str)
+    result = json.loads(output_str)
+
+    return result
+
+def call_go_function(params):
+    # Serialize params to JSON and pass it to the Go executable via stdin
+    params_json = json.dumps(params)
+    process = subprocess.Popen(['C:\\Users\\tyler\\Documents\\PROJECTS\\Dice_Analytics\\Dice_Analytics\\desktop\\dev\\server\\go_modules\\go_module.exe'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    stdout, _ = process.communicate(input=params_json.encode())
+
+    # Parse the JSON response from the Go executable
+    response = json.loads(stdout.decode())
+    return response
+
+def call_cpp_main(number, winnings, increase, user_bet, rolls, recovery_rolls, max_losing_streak):
+    # Convert parameters to strings
+    params = [str(number), str(winnings), str(increase), str(user_bet), str(rolls), str(recovery_rolls), str(max_losing_streak)]
+    
+    # Call the C++ program as a subprocess
+    process = subprocess.Popen(["C:\\Users\\tyler\\Documents\\PROJECTS\\Dice_Analytics\\Dice_Analytics\\desktop\\dev\\server\\gcc_code\\mymodule.exe"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    stdout, stderr = process.communicate("\n".join(params))
+
+    # Check if there was any error
+    if stderr:
+        print("Error:", stderr)
+        return None
+
+    # Parse the JSON output
+    try:
+        result = json.loads(stdout)
+        return result
+    except json.JSONDecodeError as e:
+        print("Error decoding JSON:", e)
+        return None
+
 @app.route('/api/simulate', methods=['POST'])
 def simulate():
     # import sys
@@ -201,7 +262,63 @@ def simulate():
     # # the sys.path.
     # sys.path.append(current + '/templates/')
 
-    from cython_modules import run_python
+    # from go_modules import go_module
+
+    # print(request.json['number'])
+    # Example usage
+    # params = {
+    #     "userBet": 10.0,
+    #     "number": 5.0,
+    #     "winnings": 2.0,
+    #     "increase": 1.5,
+    #     "rolls": 1000,
+    #     "recoveryRolls": 3,
+    #     "maxLosingStreak": 5
+    # }
+    # result = call_go_function(params)
+    # print(result)
+    # return result
+
+    # # Parse and convert input data
+    # number = float(request.json['number'])
+    # winnings = float(request.json['winnings'])
+    # increase = float(request.json['increase'])
+    # user_bet = float(request.json['user_bet'])
+    # rolls = int(request.json['rolls'])
+    # recovery_rolls = int(request.json['recovery_rolls'])
+    # max_losing_streak = int(request.json['max_losing_streak'])
+
+    # import ctypes
+
+    # module = ctypes.CDLL('./go_module.so')
+
+    # # Call the Go function
+    # result = module.Calculate_go(
+    #     ctypes.c_double(user_bet),
+    #     ctypes.c_double(number),
+    #     ctypes.c_double(winnings),
+    #     ctypes.c_double(increase),
+    #     ctypes.c_int(rolls),
+    #     ctypes.c_int(recovery_rolls),
+    #     ctypes.c_int(max_losing_streak)
+    # )
+
+    # # Convert the result from a pointer to a string
+    # result_str = ctypes.cast(result, ctypes.c_char_p).value.decode('utf-8')
+
+    # return result_str
+    # # Use the correctly typed variables in the function call
+    # return run_python.main(    
+    #     number,
+    #     winnings,
+    #     increase,
+    #     user_bet,
+    #     rolls,
+    #     recovery_rolls,
+    #     max_losing_streak,
+    # )
+
+    from python_modules import run_python
 
     return run_python.main(    
         request.json['number'],
@@ -214,7 +331,7 @@ def simulate():
 )
 
     # # Get the data from the request
-    # # data = request.json.get('data') # for POST requests with data
+    # data = request.json.get('data') # for POST requests with data
     # number = request.json['number']
     # winnings = request.json['winnings']
     # increase = request.json['increase']
@@ -270,5 +387,6 @@ if __name__ == '__main__':
         f.write(str(os.getpid()))  # Write the PID to the file
 
     # server_cython.app.run(debug=True)  
-    app.run(debug=True)  
-    
+    app.run(debug=True, threaded=True)  
+    # http_server = WSGIServer(("127.0.0.1", 8000), app)
+    # http_server.serve_forever()
