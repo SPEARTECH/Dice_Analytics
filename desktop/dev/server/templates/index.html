@@ -34,7 +34,7 @@
 
 <div>
   <!-- Off-canvas menu for mobile, show/hide based on off-canvas menu state. -->
-  <div v-if="sidebar == true" class="relative z-50 lg:hidden " role="dialog" aria-modal="true" >
+  <div v-if="sidebar == true" class="relative z-50 lg:hidden" role="dialog" aria-modal="true" >
     <!--
       Off-canvas menu backdrop, show/hide based on off-canvas menu state.
 
@@ -1029,14 +1029,20 @@ document.addEventListener('contextmenu', function(event) {
           max_losing_streak: this.max_losing_streak,
         })
         .then((response) => { 
-          console.log(response.data)
+          console.log(response)
           // handle success
             //  console.log(JSON.parse(response['data'])['chart']);
 
+            // go module response
+            this.chart = response['data']['chart']
+            this.bar_chart = response['data']['bar_chart']
+            this.streak_distance =response['data']['streak_distance']
+
             // flask response
-            this.chart = JSON.parse(JSON.stringify(response['data']['chart']))
-            this.bar_chart = JSON.parse(JSON.stringify(response['data']['bar_chart']))
-            this.streak_distance = JSON.parse(JSON.stringify(response['data']['streak_distance']))
+            // this.chart = JSON.parse(JSON.stringify(response['data']['chart']))
+            // this.bar_chart = JSON.parse(JSON.stringify(response['data']['bar_chart']))
+            // this.streak_distance = JSON.parse(JSON.stringify(response['data']['streak_distance']))
+            // console.log(response.data)
             
             // fastapi response
             // this.chart = JSON.parse(response['data'])['chart']
@@ -1480,921 +1486,921 @@ document.addEventListener('contextmenu', function(event) {
           .catch((error) => {
             this.loading = false;
             this.loading_pyodide = true;
-        async function main(
-          pyodide_status,
-          number,
-          winnings,
-          increase,
-          user_bet,
-          rolls,
-          recovery_rolls,
-          max_losing_streak,
-        ){
-          if (pyodide_status == true){
+//         async function main(
+//           pyodide_status,
+//           number,
+//           winnings,
+//           increase,
+//           user_bet,
+//           rolls,
+//           recovery_rolls,
+//           max_losing_streak,
+//         ){
+//           if (pyodide_status == true){
 
-        const pyodide = await loadPyodide();
-        pyodide.registerJsModule("mymodule", { 
-          number:number,
-          winnings:winnings,
-          increase:increase,
-          user_bet:user_bet,
-          rolls:rolls,
-          recovery_rolls:recovery_rolls,
-          max_losing_streak:max_losing_streak,
-        });
-        await pyodide.loadPackage("numpy")
+//         const pyodide = await loadPyodide();
+//         pyodide.registerJsModule("mymodule", { 
+//           number:number,
+//           winnings:winnings,
+//           increase:increase,
+//           user_bet:user_bet,
+//           rolls:rolls,
+//           recovery_rolls:recovery_rolls,
+//           max_losing_streak:max_losing_streak,
+//         });
+//         await pyodide.loadPackage("numpy")
 
-// TRYING DIFFERENT THINGS TO IMPORT CUSTOM MODULES - CAN PROBABLY BE DELETED
+// // TRYING DIFFERENT THINGS TO IMPORT CUSTOM MODULES - CAN PROBABLY BE DELETED
 
-//         output = await pyfetch("http://127.0.0.1:5000/api/run_python.py")
-// content = await output.bytes()
-// console.log(new TextDecoder().decode(content));
-        // Downloading a single file
-// await pyodide.loadPackage("micropip"); // Load micropip package if needed
-// await pyodide.runPythonAsync(`
-// import micropip
-// await micropip.install('pyodide-http') # Ensure pyodide-http is installed
-// from pyodide.http import pyfetch
-// `);
+// //         output = await pyfetch("http://127.0.0.1:5000/api/run_python.py")
+// // content = await output.bytes()
+// // console.log(new TextDecoder().decode(content));
+//         // Downloading a single file
+// // await pyodide.loadPackage("micropip"); // Load micropip package if needed
+// // await pyodide.runPythonAsync(`
+// // import micropip
+// // await micropip.install('pyodide-http') # Ensure pyodide-http is installed
+// // from pyodide.http import pyfetch
+// // `);
 
-// await pyodide.runPythonAsync(`
-// from pyodide.http import pyfetch
-// async def fetch_script():
-//   output = await pyfetch("http://127.0.0.1:5000/api/get_modules")
-//   content = await output.bytes()
-//   with open("run_python.py", "w") as f:  # Change to "w" mode for writing text
-//       f.write(content.decode("utf-8"))  # Decode bytes to string if necessary
-//   import run_python
-// fetch_script()
-// `);
-// await pyodide.runPythonAsync(`
+// // await pyodide.runPythonAsync(`
+// // from pyodide.http import pyfetch
+// // async def fetch_script():
+// //   output = await pyfetch("http://127.0.0.1:5000/api/get_modules")
+// //   content = await output.bytes()
+// //   with open("run_python.py", "w") as f:  # Change to "w" mode for writing text
+// //       f.write(content.decode("utf-8"))  # Decode bytes to string if necessary
+// //   import run_python
+// // fetch_script()
+// // `);
+// // await pyodide.runPythonAsync(`
+// // from mymodule import *
+// // import run_python
+
+// // response = run_python.main(number,winnings,increase,user_bet,rolls,recovery_rolls,max_losing_streak)
+
+// //         `)
+// //         const response = pyodide.globals.get('response') 
+// //         // console.log(response)
+// //         return response
+// //       }
+      
+//       // main(this.selected_num,this.numbers[this.selected_num],this.increase_num,this.user_bet,this.rolls,this.recovery_rolls,this.max_losing_streak).then(response => {
+//       //   // console.log(response)
+//       //   // console.log(JSON.parse(response))
+//       //   this.chart = JSON.parse(response)['chart']
+//       //   // console.log(this.chart)
+//       //   this.bar_chart = JSON.parse(response)['bar_chart']
+//       //   this.streak_distance = JSON.parse(response)['streak_distance']
+
+        
+//         // pkg.do_something();
+
+//         // RUNNING PYTHON IN BROWSER AND ASSIGNING 'response' VARIABLE FOR USING AFTER
+//         await pyodide.runPython(`
 // from mymodule import *
-// import run_python
+// import os
+// import sys
+// import random
+// import numpy as np
+// import random
+// import json
 
-// response = run_python.main(number,winnings,increase,user_bet,rolls,recovery_rolls,max_losing_streak)
+// def spin_calculate(user_amt, bet, number, winnings, history):
+//     #all_numbers = []
+//     #for i in range(0,10000):
+//     #    all_numbers.append(i)
+//     #status = ''
+//     #result = all_numbers[random.randint(0,len(all_numbers)-1)]/100
 
-//         `)
-//         const response = pyodide.globals.get('response') 
-//         // console.log(response)
-//         return response
+//     # Generate the array with numpy
+//     all_numbers = np.arange(0, 10000) / 100
+
+//     # Select a random element
+//     result = np.random.choice(all_numbers)
+    
+//     if result > int(number):
+//         user_amt = user_amt + (bet * (winnings - 1))
+//         history.append(user_amt)
+//         status = 'win'
+//         outcome = int(bet * (winnings - 1))
+//         # print(f"\t-{outcome} \tTotal: {int(user_amt)}.00\t {result}\t FIRST TWELVE\t Bet:{bet}")
+//     else:
+//         user_amt = user_amt - (bet)
+//         history.append(user_amt)
+//         status = 'loss'
+//         outcome = int(bet)
+//         # print(f"\t-{outcome} \tTotal: {int(user_amt)}.00\t {result}\t ZEROS\t\t Bet:{bet}")
+
+//     return user_amt, status, result, history
+
+// def calculate(user_bet, number, winnings, increase, rolls, recovery_rolls, max_losing_streak):
+//     print(f'Simulating {rolls} rolls over {number} with {increase}% increase and {user_bet} starting bet...')
+//     history = []
+//     user_amt = 0
+//     bet = user_bet
+//     wins = 0
+//     losses = 0
+//     percentage = 0
+//     win_amt = 0
+//     loss_amt = 0
+//     ratio = 0
+//     recovery_numbers = {}
+//     # recovery_count = 0
+//     recovery_rolls = int(recovery_rolls)
+//     losing_streak = 0
+//     streaks = []
+//     for i in range(rolls):
+//         i = i + 1
+//         # sys.stdout.write(f"\Roll {i}/{rolls}")
+//         user_amt, status, result, history = spin_calculate(user_amt, bet, number, winnings, history)
+
+//         if status == 'loss':
+//             losses = losses + 1
+//             loss_amt = loss_amt + bet 
+//             bet = bet * increase       
+//             # if bet in recovery_numbers:
+//             #     recovery_numbers[bet] += recovery_rolls
+//             # else:
+//             #     recovery_numbers[bet] = recovery_rolls
+//             recovery_numbers[bet] = recovery_rolls
+//             # recovery_count = recovery_rolls
+//             losing_streak += 1 * recovery_rolls
+//             if losing_streak >= max_losing_streak * recovery_rolls and max_losing_streak != 0:
+//                 bet = user_bet
+//                 streaks.append(losing_streak)
+//                 losing_streak = 0
+//             else:
+//                 streaks.append(0)
+//         else:
+//             if losing_streak > 0:
+//                 streaks.append(losing_streak)
+//                 losing_streak = 0
+//             else:
+//                 streaks.append(0)
+//             wins = wins + 1
+//             win_amt = win_amt + (bet * (winnings - 1)) 
+//             # recovery_count = recovery_count - 1
+//             # if recovery_count <= 0:
+//             #     bet = user_bet 
+//             #     recovery_count = 0
+//             if bet in recovery_numbers:
+//                 recovery_numbers[bet] -= 1
+//                 if recovery_numbers[bet] <= 0:
+//                     recovery_numbers[bet] = 0
+//                     # bet = bet / increase
+//                     # if bet <= user_bet:
+//                     #     bet = user_bet
+//                     bet = user_bet    
+//     if losses != 0:
+//         percentage = round(wins/(wins+(losses))*100,2)
+//         ratio_avg = round((win_amt/wins)/(loss_amt/losses),2)
+//         ratio = round((win_amt)/(loss_amt),2)
+//     else:
+//         percentage = 100
+//         ratio = 1
+//     # sys.stdout.flush()
+
+//     # print(f'\\nWin %: {percentage}\\nW/L ratio (Avg): {ratio_avg}/1.0\\nW/L ratio (Total): {ratio}/1.0\\nWin $: {win_amt}\\nLoss $: {loss_amt}\\nFinal $: {int(user_amt)}')
+    
+//     stats = {
+//         'percentage': percentage,
+//         'ratio_avg':ratio_avg,
+//         'ratio':ratio,
+//         'win_amt':win_amt,
+//         'loss_amt':loss_amt,
+//         'final_amt':int(user_amt),
+//         'profitability_ratio_avg':round((percentage + (ratio_avg * 100))/100-1,2),
+//         'profitability_ratio':round((percentage + (ratio * 100))/100-1,2),
+//     }
+
+//     return history, stats, streaks
+
+// # Get the data from the request
+// # data = request.json.get('data') # for POST requests with data
+
+// # Perform data processing
+
+// data, stats, streaks = calculate(user_bet, number, winnings, increase, rolls, recovery_rolls, max_losing_streak)
+
+// bar_dict = {}
+// for item in streaks:
+//     if item in bar_dict:
+//         bar_dict[item] = [bar_dict[item][0] + 1]
+//     else:
+//         bar_dict[item] = [1]
+
+// bar_dict = dict(sorted(bar_dict.items()))
+// del bar_dict[0]
+
+// bar_chart = []
+// streak_values = {}
+// for field in bar_dict:
+//     bar_chart.append({'name':str(field),'data':bar_dict[field]})
+//     count = 0
+//     streak_values[field] = []
+//     for item in streaks:
+//         if item == field:
+//             streak_values[item].append(count)
+//             count = 0
+//         count += 1
+//         # if count > len(streaks):
+//         #     streak_values[item].append(count)
+//         #     count = 0
+
+
+// streak_distance = []
+// for item in streak_values:
+//     streak_distance.append({'name':str(item),'data':[round(sum(streak_values[item]) / len(streak_values[item]), 4)]})
+
+// # Return the modified data as JSON
+// response = json.dumps({'chart': data,'stats':stats, 'bar_chart': bar_chart, 'streak_distance': streak_distance})
+
+
+// `);
+
+// const response = pyodide.globals.get('response') 
+// // console.log(response)
+// return response
+
+// } else {
+
+
+// // // Downloading a single file
+// // await pyodide.runPythonAsync(`
+// //     from pyodide.http import pyfetch
+// //     response = await pyfetch("https://127.0.0.1:5000/api/run_python.cp311-win_amd64.pyd")
+// //     with open("run_python.cp311-win_amd64.pyd", "wb") as f:
+// //         f.write(await response.bytes())
+// // `)
+// // pkg = pyodide.pyimport("run_python");
+// // response = pkg.main();   
+// // await pyodide.runPythonAsync(`
+// // from mymodule import *
+// // import run_python
+
+// // response = run_python.main(number,winnings,increase,user_bet,rolls,recovery_rolls,max_losing_streak)
+
+// //         `)
+
+// // TRYING TO RUN IN JAVASCRIPT FOR PERFORMANCE COMPARISON
+
+// function spin_calculate(user_amt, bet, number, winnings, history){
+
+//     //all_numbers = []
+//     //for i in range(0,10000):
+//     //    all_numbers.append(i)
+//     //status = ''
+//     //result = all_numbers[random.randint(0,len(all_numbers)-1)]/100
+
+//     // Generate the array with numpy
+//     // var all_numbers = np.arange(0, 10000) / 100
+
+//     // Select a random element
+//     // var result = np.random.choice(all_numbers)
+
+//     let allNumbers = [];
+//     for (let i = 0; i < 10000; i++) {
+//         allNumbers.push(i / 100);
+//     }
+//     // Select a random element from the array
+//     let randomIndex = Math.floor(Math.random() * allNumbers.length);
+//     let result = allNumbers[randomIndex];
+//     // console.log(result)
+    
+//     if (result > parseInt(number)){
+
+//       user_amt = user_amt + (bet * (winnings - 1))
+//       history.push(user_amt)
+//       status = 'win'
+//       outcome = parseInt(bet * (winnings - 1))
+//       // print(f"\t-{outcome} \tTotal: {int(user_amt)}.00\t {result}\t FIRST TWELVE\t Bet:{bet}")
+//     } else {
+
+//       user_amt = user_amt - (bet)
+//       history.push(user_amt)
+//       status = 'loss'
+//       outcome = parseInt(bet)
+//       // print(f"\t-{outcome} \tTotal: {int(user_amt)}.00\t {result}\t ZEROS\t\t Bet:{bet}")
+//     }
+      
+//       return {user_amt, status, result, history}
+//   }
+
+// function calculate(user_bet, number, winnings, increase, rolls, recovery_rolls, max_losing_streak){
+
+
+//     console.log('Simulating '+rolls+' rolls over '+number+' with '+increase+'% increase and '+user_bet+' starting bet...')
+//     var history = []
+//     var user_amt = 0
+//     var bet = user_bet
+//     var wins = 0
+//     var losses = 0
+//     var percentage = 0
+//     var win_amt = 0
+//     var loss_amt = 0
+//     var ratio = 0
+//     var recovery_numbers = {}
+//     // recovery_count = 0
+//     var recovery_rolls = parseInt(recovery_rolls)
+//     var losing_streak = 0
+//     var streaks = []
+//     for (var i of Array(rolls).keys()){
+//         i = i + 1
+//         // sys.stdout.write(f"\Roll {i}/{rolls}")
+//         var {user_amt, status, result, history} = spin_calculate(user_amt, bet, number, winnings, history)
+//         // console.log(history)
+//         if (status == 'loss'){
+
+        
+//             losses = losses + 1
+//             loss_amt = loss_amt + bet 
+//             bet = bet * increase       
+//             // if bet in recovery_numbers:
+//             //     recovery_numbers[bet] += recovery_rolls
+//             // else:
+//             //     recovery_numbers[bet] = recovery_rolls
+//             recovery_numbers[bet] = recovery_rolls
+//             // recovery_count = recovery_rolls
+//             losing_streak += 1 * recovery_rolls
+//             if (losing_streak >= max_losing_streak * recovery_rolls && max_losing_streak != 0){
+
+//               bet = user_bet
+//               streaks.push(losing_streak)
+//               losing_streak = 0
+//             } else {
+//               streaks.push(0)
+//             }
+//         } else {
+//           if (losing_streak > 0){
+//             streaks.push(losing_streak)
+//             losing_streak = 0
+//           } else {
+//             streaks.push(0)
+//             wins = wins + 1
+//             win_amt = win_amt + (bet * (winnings - 1)) 
+//             // recovery_count = recovery_count - 1
+//             // if recovery_count <= 0:
+//             //     bet = user_bet 
+//             //     recovery_count = 0
+//             if (bet in recovery_numbers){
+//               recovery_numbers[bet] -= 1
+//             }
+//             if (recovery_numbers[bet] <= 0){
+//               recovery_numbers[bet] = 0
+//               // bet = bet / increase
+//               // if bet <= user_bet:
+//               //     bet = user_bet
+//               bet = user_bet    
+//             }
+//           }
+//         }
+//     }
+//     if (losses != 0){
+//       var percentage = Math.round(wins/(wins+(losses))*100)
+//       var ratio_avg = Math.round((win_amt/wins)/(loss_amt/losses))
+//       var ratio = Math.round((win_amt)/(loss_amt))
+//     } else {
+//       var percentage = 100
+//       var ratio = 1
+//     }
+//     // sys.stdout.flush()
+
+//     // print(f'\\nWin %: {percentage}\\nW/L ratio (Avg): {ratio_avg}/1.0\\nW/L ratio (Total): {ratio}/1.0\\nWin $: {win_amt}\\nLoss $: {loss_amt}\\nFinal $: {int(user_amt)}')
+    
+//     stats = {
+//         percentage : percentage,
+//         ratio_avg : ratio_avg,
+//         ratio : ratio,
+//         win_amt : win_amt,
+//         loss_amt : loss_amt,
+//         final_amt : parseInt(user_amt),
+//         profitability_ratio_avg : Math.round((percentage + (ratio_avg * 100))/100-1),
+//         profitability_ratio : Math.round((percentage + (ratio * 100))/100-1),
+//     }
+//     console.log(history)
+//     data = history
+//     return {data, stats, streaks}
+//   }
+// // Get the data from the request
+// // data = request.json.get('data') # for POST requests with data
+
+// // Perform data processing
+
+// var {data, stats, streaks} = calculate(user_bet, number, winnings, increase, rolls, recovery_rolls, max_losing_streak)
+// console.log(streaks)
+// var bar_dict = {}
+// for (var item of streaks){
+
+//   if (Object.keys(bar_dict).some(x => x === item)){
+//     bar_dict[item] = [bar_dict[item][0] + 1]
+//   } else {
+//     bar_dict[item] = [1]
+//   }
+// }
+
+// // Function to sort an object by its keys
+// function sortObjectByKeys(obj) {
+//     const sortedKeys = Object.keys(obj).sort();
+//     const sortedObj = {};
+//     for (const key of sortedKeys) {
+//         sortedObj[key] = obj[key];
+//     }
+//     return sortedObj;
+// }
+
+// bar_dict = sortObjectByKeys(bar_dict);
+// console.log("Before delete:", bar_dict);
+
+// // Delete the property with key '0'
+// delete bar_dict['0'];  // JavaScript object keys are strings, even if they represent numbers
+
+// console.log("After delete:", bar_dict);
+
+// var bar_chart = []
+// var streak_values = {}
+// for (var field of Object.keys(bar_dict)){
+//   bar_chart.push({name:field.toString(),data:bar_dict[field]})
+//   var count = 0
+//   streak_values[field] = []
+//   for (var item of streaks){
+//     if (item == field){
+//       streak_values[item].push(count)
+//       count = 0
+//       count += 1
+//     }
+//   }
+// }
+
+// function sumArray(array) {
+//     let sum = 0;
+//     for (let i = 0; i < array.length; i++) {
+//         sum += array[i];
+//     }
+//     return sum;
+// }
+
+// var streak_distance = []
+// for (var item of Object.keys(streak_values)){
+//   streak_distance.push({name:item.toString(),data:[Math.round(sumArray(streak_values[item]) / (streak_values[item]).length)]})
+// }
+
+// // Return the modified data as JSON
+// response = {chart: data,stats:stats, bar_chart: bar_chart, streak_distance: streak_distance}
+
+// // console.log(response)
+// return response
+
+// }
+
 //       }
       
-      // main(this.selected_num,this.numbers[this.selected_num],this.increase_num,this.user_bet,this.rolls,this.recovery_rolls,this.max_losing_streak).then(response => {
-      //   // console.log(response)
-      //   // console.log(JSON.parse(response))
-      //   this.chart = JSON.parse(response)['chart']
-      //   // console.log(this.chart)
-      //   this.bar_chart = JSON.parse(response)['bar_chart']
-      //   this.streak_distance = JSON.parse(response)['streak_distance']
+//       main(this.pyodide,this.selected_num,this.numbers[this.selected_num],this.increase_num,this.user_bet,this.rolls,this.recovery_rolls,this.max_losing_streak).then(response => {
+//         if (this.pyodide == true){
+//           // PYODIDE METHOD OF HANDLING RESPONSE FROM DICT
+//           this.chart = JSON.parse(response)['chart']
+//           this.bar_chart = JSON.parse(response)['bar_chart']
+//           this.streak_distance = JSON.parse(response)['streak_distance']
+//         } else {
+//           // JAVASCRIPT METHOD OF HANDLING RESPONSE FROM JAVASCRIPT CODE
+//           this.chart = response['chart']
+//           this.bar_chart = response['bar_chart']
+//           this.streak_distance = response['streak_distance']
+//         }
 
-        
-        // pkg.do_something();
+//         Highcharts.chart('bar_chart', {
+//               chart: {
+//                   type: 'bar',
+//                   zooming:{
+//                     type: "y"
+//                   }
+//               },
+//               credits: {
+//                   enabled: false
+//                 },
 
-        // RUNNING PYTHON IN BROWSER AND ASSIGNING 'response' VARIABLE FOR USING AFTER
-        await pyodide.runPython(`
-from mymodule import *
-import os
-import sys
-import random
-import numpy as np
-import random
-import json
+//               title: {
+//                   text: 'Losing Streak Total',
+//                   align: 'center'
+//               },
+//               xAxis: {
+//                   categories: [' '],
+//                   title: {
+//                       text: null
+//                   },
+//                   gridLineWidth: 1,
+//                   lineWidth: 1
+//               },
+//               yAxis: {
+//                   min: 0,
+//                   title: {
+//                       text: ' ',
+//                       align: 'high'
+//                   },
+//                   labels: {
+//                       overflow: 'justify'
+//                   },
+//                   gridLineWidth: 1
+//               },
+//               plotOptions: {
+//                   bar: {
+//                       borderRadius: '50%',
+//                       dataLabels: {
+//                           enabled: true
+//                       },
+//                       groupPadding: 0.1,
+//                       animation: true
 
-def spin_calculate(user_amt, bet, number, winnings, history):
-    #all_numbers = []
-    #for i in range(0,10000):
-    #    all_numbers.append(i)
-    #status = ''
-    #result = all_numbers[random.randint(0,len(all_numbers)-1)]/100
-
-    # Generate the array with numpy
-    all_numbers = np.arange(0, 10000) / 100
-
-    # Select a random element
-    result = np.random.choice(all_numbers)
-    
-    if result > int(number):
-        user_amt = user_amt + (bet * (winnings - 1))
-        history.append(user_amt)
-        status = 'win'
-        outcome = int(bet * (winnings - 1))
-        # print(f"\t-{outcome} \tTotal: {int(user_amt)}.00\t {result}\t FIRST TWELVE\t Bet:{bet}")
-    else:
-        user_amt = user_amt - (bet)
-        history.append(user_amt)
-        status = 'loss'
-        outcome = int(bet)
-        # print(f"\t-{outcome} \tTotal: {int(user_amt)}.00\t {result}\t ZEROS\t\t Bet:{bet}")
-
-    return user_amt, status, result, history
-
-def calculate(user_bet, number, winnings, increase, rolls, recovery_rolls, max_losing_streak):
-    print(f'Simulating {rolls} rolls over {number} with {increase}% increase and {user_bet} starting bet...')
-    history = []
-    user_amt = 0
-    bet = user_bet
-    wins = 0
-    losses = 0
-    percentage = 0
-    win_amt = 0
-    loss_amt = 0
-    ratio = 0
-    recovery_numbers = {}
-    # recovery_count = 0
-    recovery_rolls = int(recovery_rolls)
-    losing_streak = 0
-    streaks = []
-    for i in range(rolls):
-        i = i + 1
-        # sys.stdout.write(f"\Roll {i}/{rolls}")
-        user_amt, status, result, history = spin_calculate(user_amt, bet, number, winnings, history)
-
-        if status == 'loss':
-            losses = losses + 1
-            loss_amt = loss_amt + bet 
-            bet = bet * increase       
-            # if bet in recovery_numbers:
-            #     recovery_numbers[bet] += recovery_rolls
-            # else:
-            #     recovery_numbers[bet] = recovery_rolls
-            recovery_numbers[bet] = recovery_rolls
-            # recovery_count = recovery_rolls
-            losing_streak += 1 * recovery_rolls
-            if losing_streak >= max_losing_streak * recovery_rolls and max_losing_streak != 0:
-                bet = user_bet
-                streaks.append(losing_streak)
-                losing_streak = 0
-            else:
-                streaks.append(0)
-        else:
-            if losing_streak > 0:
-                streaks.append(losing_streak)
-                losing_streak = 0
-            else:
-                streaks.append(0)
-            wins = wins + 1
-            win_amt = win_amt + (bet * (winnings - 1)) 
-            # recovery_count = recovery_count - 1
-            # if recovery_count <= 0:
-            #     bet = user_bet 
-            #     recovery_count = 0
-            if bet in recovery_numbers:
-                recovery_numbers[bet] -= 1
-                if recovery_numbers[bet] <= 0:
-                    recovery_numbers[bet] = 0
-                    # bet = bet / increase
-                    # if bet <= user_bet:
-                    #     bet = user_bet
-                    bet = user_bet    
-    if losses != 0:
-        percentage = round(wins/(wins+(losses))*100,2)
-        ratio_avg = round((win_amt/wins)/(loss_amt/losses),2)
-        ratio = round((win_amt)/(loss_amt),2)
-    else:
-        percentage = 100
-        ratio = 1
-    # sys.stdout.flush()
-
-    # print(f'\\nWin %: {percentage}\\nW/L ratio (Avg): {ratio_avg}/1.0\\nW/L ratio (Total): {ratio}/1.0\\nWin $: {win_amt}\\nLoss $: {loss_amt}\\nFinal $: {int(user_amt)}')
-    
-    stats = {
-        'percentage': percentage,
-        'ratio_avg':ratio_avg,
-        'ratio':ratio,
-        'win_amt':win_amt,
-        'loss_amt':loss_amt,
-        'final_amt':int(user_amt),
-        'profitability_ratio_avg':round((percentage + (ratio_avg * 100))/100-1,2),
-        'profitability_ratio':round((percentage + (ratio * 100))/100-1,2),
-    }
-
-    return history, stats, streaks
-
-# Get the data from the request
-# data = request.json.get('data') # for POST requests with data
-
-# Perform data processing
-
-data, stats, streaks = calculate(user_bet, number, winnings, increase, rolls, recovery_rolls, max_losing_streak)
-
-bar_dict = {}
-for item in streaks:
-    if item in bar_dict:
-        bar_dict[item] = [bar_dict[item][0] + 1]
-    else:
-        bar_dict[item] = [1]
-
-bar_dict = dict(sorted(bar_dict.items()))
-del bar_dict[0]
-
-bar_chart = []
-streak_values = {}
-for field in bar_dict:
-    bar_chart.append({'name':str(field),'data':bar_dict[field]})
-    count = 0
-    streak_values[field] = []
-    for item in streaks:
-        if item == field:
-            streak_values[item].append(count)
-            count = 0
-        count += 1
-        # if count > len(streaks):
-        #     streak_values[item].append(count)
-        #     count = 0
-
-
-streak_distance = []
-for item in streak_values:
-    streak_distance.append({'name':str(item),'data':[round(sum(streak_values[item]) / len(streak_values[item]), 4)]})
-
-# Return the modified data as JSON
-response = json.dumps({'chart': data,'stats':stats, 'bar_chart': bar_chart, 'streak_distance': streak_distance})
-
-
-`);
-
-const response = pyodide.globals.get('response') 
-// console.log(response)
-return response
-
-} else {
-
-
-// // Downloading a single file
-// await pyodide.runPythonAsync(`
-//     from pyodide.http import pyfetch
-//     response = await pyfetch("https://127.0.0.1:5000/api/run_python.cp311-win_amd64.pyd")
-//     with open("run_python.cp311-win_amd64.pyd", "wb") as f:
-//         f.write(await response.bytes())
-// `)
-// pkg = pyodide.pyimport("run_python");
-// response = pkg.main();   
-// await pyodide.runPythonAsync(`
-// from mymodule import *
-// import run_python
-
-// response = run_python.main(number,winnings,increase,user_bet,rolls,recovery_rolls,max_losing_streak)
-
-//         `)
-
-// TRYING TO RUN IN JAVASCRIPT FOR PERFORMANCE COMPARISON
-
-function spin_calculate(user_amt, bet, number, winnings, history){
-
-    //all_numbers = []
-    //for i in range(0,10000):
-    //    all_numbers.append(i)
-    //status = ''
-    //result = all_numbers[random.randint(0,len(all_numbers)-1)]/100
-
-    // Generate the array with numpy
-    // var all_numbers = np.arange(0, 10000) / 100
-
-    // Select a random element
-    // var result = np.random.choice(all_numbers)
-
-    let allNumbers = [];
-    for (let i = 0; i < 10000; i++) {
-        allNumbers.push(i / 100);
-    }
-    // Select a random element from the array
-    let randomIndex = Math.floor(Math.random() * allNumbers.length);
-    let result = allNumbers[randomIndex];
-    // console.log(result)
-    
-    if (result > parseInt(number)){
-
-      user_amt = user_amt + (bet * (winnings - 1))
-      history.push(user_amt)
-      status = 'win'
-      outcome = parseInt(bet * (winnings - 1))
-      // print(f"\t-{outcome} \tTotal: {int(user_amt)}.00\t {result}\t FIRST TWELVE\t Bet:{bet}")
-    } else {
-
-      user_amt = user_amt - (bet)
-      history.push(user_amt)
-      status = 'loss'
-      outcome = parseInt(bet)
-      // print(f"\t-{outcome} \tTotal: {int(user_amt)}.00\t {result}\t ZEROS\t\t Bet:{bet}")
-    }
-      
-      return {user_amt, status, result, history}
-  }
-
-function calculate(user_bet, number, winnings, increase, rolls, recovery_rolls, max_losing_streak){
-
-
-    console.log('Simulating '+rolls+' rolls over '+number+' with '+increase+'% increase and '+user_bet+' starting bet...')
-    var history = []
-    var user_amt = 0
-    var bet = user_bet
-    var wins = 0
-    var losses = 0
-    var percentage = 0
-    var win_amt = 0
-    var loss_amt = 0
-    var ratio = 0
-    var recovery_numbers = {}
-    // recovery_count = 0
-    var recovery_rolls = parseInt(recovery_rolls)
-    var losing_streak = 0
-    var streaks = []
-    for (var i of Array(rolls).keys()){
-        i = i + 1
-        // sys.stdout.write(f"\Roll {i}/{rolls}")
-        var {user_amt, status, result, history} = spin_calculate(user_amt, bet, number, winnings, history)
-        // console.log(history)
-        if (status == 'loss'){
-
-        
-            losses = losses + 1
-            loss_amt = loss_amt + bet 
-            bet = bet * increase       
-            // if bet in recovery_numbers:
-            //     recovery_numbers[bet] += recovery_rolls
-            // else:
-            //     recovery_numbers[bet] = recovery_rolls
-            recovery_numbers[bet] = recovery_rolls
-            // recovery_count = recovery_rolls
-            losing_streak += 1 * recovery_rolls
-            if (losing_streak >= max_losing_streak * recovery_rolls && max_losing_streak != 0){
-
-              bet = user_bet
-              streaks.push(losing_streak)
-              losing_streak = 0
-            } else {
-              streaks.push(0)
-            }
-        } else {
-          if (losing_streak > 0){
-            streaks.push(losing_streak)
-            losing_streak = 0
-          } else {
-            streaks.push(0)
-            wins = wins + 1
-            win_amt = win_amt + (bet * (winnings - 1)) 
-            // recovery_count = recovery_count - 1
-            // if recovery_count <= 0:
-            //     bet = user_bet 
-            //     recovery_count = 0
-            if (bet in recovery_numbers){
-              recovery_numbers[bet] -= 1
-            }
-            if (recovery_numbers[bet] <= 0){
-              recovery_numbers[bet] = 0
-              // bet = bet / increase
-              // if bet <= user_bet:
-              //     bet = user_bet
-              bet = user_bet    
-            }
-          }
-        }
-    }
-    if (losses != 0){
-      var percentage = Math.round(wins/(wins+(losses))*100)
-      var ratio_avg = Math.round((win_amt/wins)/(loss_amt/losses))
-      var ratio = Math.round((win_amt)/(loss_amt))
-    } else {
-      var percentage = 100
-      var ratio = 1
-    }
-    // sys.stdout.flush()
-
-    // print(f'\\nWin %: {percentage}\\nW/L ratio (Avg): {ratio_avg}/1.0\\nW/L ratio (Total): {ratio}/1.0\\nWin $: {win_amt}\\nLoss $: {loss_amt}\\nFinal $: {int(user_amt)}')
-    
-    stats = {
-        percentage : percentage,
-        ratio_avg : ratio_avg,
-        ratio : ratio,
-        win_amt : win_amt,
-        loss_amt : loss_amt,
-        final_amt : parseInt(user_amt),
-        profitability_ratio_avg : Math.round((percentage + (ratio_avg * 100))/100-1),
-        profitability_ratio : Math.round((percentage + (ratio * 100))/100-1),
-    }
-    console.log(history)
-    data = history
-    return {data, stats, streaks}
-  }
-// Get the data from the request
-// data = request.json.get('data') # for POST requests with data
-
-// Perform data processing
-
-var {data, stats, streaks} = calculate(user_bet, number, winnings, increase, rolls, recovery_rolls, max_losing_streak)
-console.log(streaks)
-var bar_dict = {}
-for (var item of streaks){
-
-  if (Object.keys(bar_dict).some(x => x === item)){
-    bar_dict[item] = [bar_dict[item][0] + 1]
-  } else {
-    bar_dict[item] = [1]
-  }
-}
-
-// Function to sort an object by its keys
-function sortObjectByKeys(obj) {
-    const sortedKeys = Object.keys(obj).sort();
-    const sortedObj = {};
-    for (const key of sortedKeys) {
-        sortedObj[key] = obj[key];
-    }
-    return sortedObj;
-}
-
-bar_dict = sortObjectByKeys(bar_dict);
-console.log("Before delete:", bar_dict);
-
-// Delete the property with key '0'
-delete bar_dict['0'];  // JavaScript object keys are strings, even if they represent numbers
-
-console.log("After delete:", bar_dict);
-
-var bar_chart = []
-var streak_values = {}
-for (var field of Object.keys(bar_dict)){
-  bar_chart.push({name:field.toString(),data:bar_dict[field]})
-  var count = 0
-  streak_values[field] = []
-  for (var item of streaks){
-    if (item == field){
-      streak_values[item].push(count)
-      count = 0
-      count += 1
-    }
-  }
-}
-
-function sumArray(array) {
-    let sum = 0;
-    for (let i = 0; i < array.length; i++) {
-        sum += array[i];
-    }
-    return sum;
-}
-
-var streak_distance = []
-for (var item of Object.keys(streak_values)){
-  streak_distance.push({name:item.toString(),data:[Math.round(sumArray(streak_values[item]) / (streak_values[item]).length)]})
-}
-
-// Return the modified data as JSON
-response = {chart: data,stats:stats, bar_chart: bar_chart, streak_distance: streak_distance}
-
-// console.log(response)
-return response
-
-}
-
-      }
-      
-      main(this.pyodide,this.selected_num,this.numbers[this.selected_num],this.increase_num,this.user_bet,this.rolls,this.recovery_rolls,this.max_losing_streak).then(response => {
-        if (this.pyodide == true){
-          // PYODIDE METHOD OF HANDLING RESPONSE FROM DICT
-          this.chart = JSON.parse(response)['chart']
-          this.bar_chart = JSON.parse(response)['bar_chart']
-          this.streak_distance = JSON.parse(response)['streak_distance']
-        } else {
-          // JAVASCRIPT METHOD OF HANDLING RESPONSE FROM JAVASCRIPT CODE
-          this.chart = response['chart']
-          this.bar_chart = response['bar_chart']
-          this.streak_distance = response['streak_distance']
-        }
-
-        Highcharts.chart('bar_chart', {
-              chart: {
-                  type: 'bar',
-                  zooming:{
-                    type: "y"
-                  }
-              },
-              credits: {
-                  enabled: false
-                },
-
-              title: {
-                  text: 'Losing Streak Total',
-                  align: 'center'
-              },
-              xAxis: {
-                  categories: [' '],
-                  title: {
-                      text: null
-                  },
-                  gridLineWidth: 1,
-                  lineWidth: 1
-              },
-              yAxis: {
-                  min: 0,
-                  title: {
-                      text: ' ',
-                      align: 'high'
-                  },
-                  labels: {
-                      overflow: 'justify'
-                  },
-                  gridLineWidth: 1
-              },
-              plotOptions: {
-                  bar: {
-                      borderRadius: '50%',
-                      dataLabels: {
-                          enabled: true
-                      },
-                      groupPadding: 0.1,
-                      animation: true
-
-                  }
-              },
-              legend: {
-                  // layout: 'vertical',
-                  // align: 'right',
-                  // verticalAlign: 'top',
-                  // x: 0,
-                  // y: 40,
-                  // floating: false,
-                  // borderWidth: 1,
-                  // backgroundColor:
-                  //     Highcharts
-                  enabled: false
-              },
-              credits: {
-                  enabled: false
-              },
-              series: this.bar_chart,
-              exporting: {
-                enabled: false
-              }
-          });
+//                   }
+//               },
+//               legend: {
+//                   // layout: 'vertical',
+//                   // align: 'right',
+//                   // verticalAlign: 'top',
+//                   // x: 0,
+//                   // y: 40,
+//                   // floating: false,
+//                   // borderWidth: 1,
+//                   // backgroundColor:
+//                   //     Highcharts
+//                   enabled: false
+//               },
+//               credits: {
+//                   enabled: false
+//               },
+//               series: this.bar_chart,
+//               exporting: {
+//                 enabled: false
+//               }
+//           });
             
-        Highcharts.chart('chart', {
-              title: {
-                text: 'Simulation',
-                align: 'center'
-              },
-              chart:{
-                zooming: {
-                  type: "x"
-                }
-              },
-              // subtitle: {
-              //   text: 'Outcome',
-              //   align: 'center'
-              // },
-              credits: {
-                  enabled: false
-                },
+//         Highcharts.chart('chart', {
+//               title: {
+//                 text: 'Simulation',
+//                 align: 'center'
+//               },
+//               chart:{
+//                 zooming: {
+//                   type: "x"
+//                 }
+//               },
+//               // subtitle: {
+//               //   text: 'Outcome',
+//               //   align: 'center'
+//               // },
+//               credits: {
+//                   enabled: false
+//                 },
 
-                  yAxis: {
-                      title: {
-                          text: ' '
-                      }
-                  },
+//                   yAxis: {
+//                       title: {
+//                           text: ' '
+//                       }
+//                   },
 
-              xAxis: {
-                accessibility: {
-                  rangeDescription: 'Rolls'
-                }
-              },
+//               xAxis: {
+//                 accessibility: {
+//                   rangeDescription: 'Rolls'
+//                 }
+//               },
 
-              legend: {
-                // layout: 'vertical',
-                // align: 'center',
-                // verticalAlign: 'bottom'
-                enabled: false
-              },
+//               legend: {
+//                 // layout: 'vertical',
+//                 // align: 'center',
+//                 // verticalAlign: 'bottom'
+//                 enabled: false
+//               },
 
-              plotOptions: {
-                series: {
-                  label: {
-                    connectorAllowed: false
-                  },
-                  pointStart: 1,
-                  animation: true
+//               plotOptions: {
+//                 series: {
+//                   label: {
+//                     connectorAllowed: false
+//                   },
+//                   pointStart: 1,
+//                   animation: true
 
-                }
-              },
+//                 }
+//               },
 
-              series: [{
-                name: 'Results',
-                data: this.chart,
-                color: "#4A00FF",
-              }],
-              boost: {
-                useGPUTranslations: false
-              },
-              turboThreshold: 100000,
+//               series: [{
+//                 name: 'Results',
+//                 data: this.chart,
+//                 color: "#4A00FF",
+//               }],
+//               boost: {
+//                 useGPUTranslations: false
+//               },
+//               turboThreshold: 100000,
 
-              responsive: {
-                rules: [{
-                  condition: {
-                    maxWidth: 500,
-                    maxHeight: 5000,
-                  },
-                  chartOptions: {
-                    legend: {
-                      layout: 'horizontal',
-                      align: 'center',
-                      verticalAlign: 'bottom'
-                    }
-                  }
-                }]
-              },
-              exporting: {
-                enabled: true
-              }
-            })
+//               responsive: {
+//                 rules: [{
+//                   condition: {
+//                     maxWidth: 500,
+//                     maxHeight: 5000,
+//                   },
+//                   chartOptions: {
+//                     legend: {
+//                       layout: 'horizontal',
+//                       align: 'center',
+//                       verticalAlign: 'bottom'
+//                     }
+//                   }
+//                 }]
+//               },
+//               exporting: {
+//                 enabled: true
+//               }
+//             })
 
-        Highcharts.chart('logarithmic_chart', {
+//         Highcharts.chart('logarithmic_chart', {
 
-              title: {
-                  text: 'Win Ratios',
-                  align: 'center'
-              },
+//               title: {
+//                   text: 'Win Ratios',
+//                   align: 'center'
+//               },
 
-              yAxis: {
-                  title: {
-                      text: ' '
-                  }
-              },
+//               yAxis: {
+//                   title: {
+//                       text: ' '
+//                   }
+//               },
 
-              xAxis: {
-                title:{
-                  text: ' '
-                },
-                  accessibility: {
-                      rangeDescription: 'Range: 2010 to 2020'
-                  }
-              },
+//               xAxis: {
+//                 title:{
+//                   text: ' '
+//                 },
+//                   accessibility: {
+//                       rangeDescription: 'Range: 2010 to 2020'
+//                   }
+//               },
 
-              legend: {
-                  // layout: 'vertical',
-                  // align: 'right',
-                  // verticalAlign: 'middle'
-                  enabled: false
-              },
+//               legend: {
+//                   // layout: 'vertical',
+//                   // align: 'right',
+//                   // verticalAlign: 'middle'
+//                   enabled: false
+//               },
 
-                credits: {
-                  enabled: false
-                },
-
-
-              plotOptions: {
-                  series: {
-                      label: {
-                          connectorAllowed: false
-                      },
-                      pointStart: 2,
-                      animation: true,
-                      color: "#4A00FF",
-                      marker: {
-                        enabled: true,
-                        radius: 0
-                      }
-                  }
-              },
-
-              series: [{
-                  name: 'Win Ratio',
-                  data: Object.values(this.numbers).map(value => value === this.numbers[parseInt(this.selected_num)] ? {y: value, marker: {radius: 6}} : value)
-              }],
-
-              responsive: {
-                  rules: [{
-                      condition: {
-                          maxWidth: 500
-                      },
-                      chartOptions: {
-                          legend: {
-                              layout: 'horizontal',
-                              align: 'center',
-                              verticalAlign: 'bottom'
-                          }
-                      }
-                  }]
-              },
-              exporting: {
-                  enabled: false
-                }
+//                 credits: {
+//                   enabled: false
+//                 },
 
 
-              });
+//               plotOptions: {
+//                   series: {
+//                       label: {
+//                           connectorAllowed: false
+//                       },
+//                       pointStart: 2,
+//                       animation: true,
+//                       color: "#4A00FF",
+//                       marker: {
+//                         enabled: true,
+//                         radius: 0
+//                       }
+//                   }
+//               },
+
+//               series: [{
+//                   name: 'Win Ratio',
+//                   data: Object.values(this.numbers).map(value => value === this.numbers[parseInt(this.selected_num)] ? {y: value, marker: {radius: 6}} : value)
+//               }],
+
+//               responsive: {
+//                   rules: [{
+//                       condition: {
+//                           maxWidth: 500
+//                       },
+//                       chartOptions: {
+//                           legend: {
+//                               layout: 'horizontal',
+//                               align: 'center',
+//                               verticalAlign: 'bottom'
+//                           }
+//                       }
+//                   }]
+//               },
+//               exporting: {
+//                   enabled: false
+//                 }
+
+
+//               });
        
-        Highcharts.chart('recovery_chart', {
+//         Highcharts.chart('recovery_chart', {
 
-            title: {
-                text: 'Recovery Ratios',
-                align: 'center'
-            },
-            credits: {
-                  enabled: false
-                },
+//             title: {
+//                 text: 'Recovery Ratios',
+//                 align: 'center'
+//             },
+//             credits: {
+//                   enabled: false
+//                 },
 
-            yAxis: {
-                title: {
-                    text: ' '
-                }
-            },
+//             yAxis: {
+//                 title: {
+//                     text: ' '
+//                 }
+//             },
 
-            xAxis: {
-              title:{
-                text: ' '
-              },
-                accessibility: {
-                    rangeDescription: 'Range: 2010 to 2020'
-                }
-            },
+//             xAxis: {
+//               title:{
+//                 text: ' '
+//               },
+//                 accessibility: {
+//                     rangeDescription: 'Range: 2010 to 2020'
+//                 }
+//             },
 
-            legend: {
-                // layout: 'vertical',
-                // align: 'right',
-                // verticalAlign: 'middle'
-                enabled: false
-            },
+//             legend: {
+//                 // layout: 'vertical',
+//                 // align: 'right',
+//                 // verticalAlign: 'middle'
+//                 enabled: false
+//             },
 
-            plotOptions: {
-                series: {
-                    label: {
-                        connectorAllowed: false
-                    },
-                    pointStart: 2,
-                    animation: true,
-                    color: "#4A00FF",
-                    marker: {
-                        enabled: true,
-                        radius: 0
-                      }
-
-
-                }
-            },
-
-            series: [{
-                name: 'Recovery Ratio',
-                data: Object.values(this.numbers).map(value => value === this.numbers[parseInt(this.selected_num)] ? {y: parseFloat(((((1/(value-1))+1)/this.recovery_rolls)).toFixed(4)), marker: {radius: 6}} : parseFloat(((((1/(value-1))+1)/this.recovery_rolls)).toFixed(4)))
-            }],
-
-            responsive: {
-                rules: [{
-                    condition: {
-                        maxWidth: 500
-                    },
-                    chartOptions: {
-                        legend: {
-                            layout: 'horizontal',
-                            align: 'center',
-                            verticalAlign: 'bottom'
-                        }
-                    }
-                }]
-            },
-            exporting: {
-                enabled: false
-              }
+//             plotOptions: {
+//                 series: {
+//                     label: {
+//                         connectorAllowed: false
+//                     },
+//                     pointStart: 2,
+//                     animation: true,
+//                     color: "#4A00FF",
+//                     marker: {
+//                         enabled: true,
+//                         radius: 0
+//                       }
 
 
-            });
+//                 }
+//             },
+
+//             series: [{
+//                 name: 'Recovery Ratio',
+//                 data: Object.values(this.numbers).map(value => value === this.numbers[parseInt(this.selected_num)] ? {y: parseFloat(((((1/(value-1))+1)/this.recovery_rolls)).toFixed(4)), marker: {radius: 6}} : parseFloat(((((1/(value-1))+1)/this.recovery_rolls)).toFixed(4)))
+//             }],
+
+//             responsive: {
+//                 rules: [{
+//                     condition: {
+//                         maxWidth: 500
+//                     },
+//                     chartOptions: {
+//                         legend: {
+//                             layout: 'horizontal',
+//                             align: 'center',
+//                             verticalAlign: 'bottom'
+//                         }
+//                     }
+//                 }]
+//             },
+//             exporting: {
+//                 enabled: false
+//               }
+
+
+//             });
           
-        Highcharts.chart('streak_distance_chart', {
-              chart: {
-                  type: 'bar',
-                  zooming:{
-                    type: "y"
-                  }
-              },
-              credits: {
-                  enabled: false
-                },
+//         Highcharts.chart('streak_distance_chart', {
+//               chart: {
+//                   type: 'bar',
+//                   zooming:{
+//                     type: "y"
+//                   }
+//               },
+//               credits: {
+//                   enabled: false
+//                 },
 
-              title: {
-                  text: 'Average Occurance',
-                  align: 'center'
-              },
-              xAxis: {
-                  categories: [' '],
-                  title: {
-                      text: null
-                  },
-                  gridLineWidth: 1,
-                  lineWidth: 1
-              },
-              yAxis: {
-                  min: 0,
-                  title: {
-                      text: ' ',
-                      align: 'high'
-                  },
-                  labels: {
-                      overflow: 'justify'
-                  },
-                  gridLineWidth: 1
-              },
-              plotOptions: {
-                  bar: {
-                      borderRadius: '50%',
-                      dataLabels: {
-                          enabled: true
-                      },
-                      groupPadding: 0.1,
-                      animation: true
-                  }
-              },
-              legend: {
-                  // layout: 'vertical',
-                  // align: 'right',
-                  // verticalAlign: 'top',
-                  // x: 0,
-                  // y: 40,
-                  // floating: false,
-                  // borderWidth: 1,
-                  // backgroundColor:
-                  //     Highcharts.defaultOptions.legend.backgroundColor || '#FFFFFF',
-                  // shadow: true
-                  enabled: false
-              },
-              credits: {
-                  enabled: false
-              },
-              series: this.streak_distance,
-              exporting: {
-                enabled: false
-              }
-          });
+//               title: {
+//                   text: 'Average Occurance',
+//                   align: 'center'
+//               },
+//               xAxis: {
+//                   categories: [' '],
+//                   title: {
+//                       text: null
+//                   },
+//                   gridLineWidth: 1,
+//                   lineWidth: 1
+//               },
+//               yAxis: {
+//                   min: 0,
+//                   title: {
+//                       text: ' ',
+//                       align: 'high'
+//                   },
+//                   labels: {
+//                       overflow: 'justify'
+//                   },
+//                   gridLineWidth: 1
+//               },
+//               plotOptions: {
+//                   bar: {
+//                       borderRadius: '50%',
+//                       dataLabels: {
+//                           enabled: true
+//                       },
+//                       groupPadding: 0.1,
+//                       animation: true
+//                   }
+//               },
+//               legend: {
+//                   // layout: 'vertical',
+//                   // align: 'right',
+//                   // verticalAlign: 'top',
+//                   // x: 0,
+//                   // y: 40,
+//                   // floating: false,
+//                   // borderWidth: 1,
+//                   // backgroundColor:
+//                   //     Highcharts.defaultOptions.legend.backgroundColor || '#FFFFFF',
+//                   // shadow: true
+//                   enabled: false
+//               },
+//               credits: {
+//                   enabled: false
+//               },
+//               series: this.streak_distance,
+//               exporting: {
+//                 enabled: false
+//               }
+//           });
 
-        Highcharts.chart('streak_cost_chart', {
-              chart: {
-                  type: 'bar',
-                  zooming:{
-                    type: "y"
-                  }
-              },
-              credits: {
-                  enabled: false
-                },
+//         Highcharts.chart('streak_cost_chart', {
+//               chart: {
+//                   type: 'bar',
+//                   zooming:{
+//                     type: "y"
+//                   }
+//               },
+//               credits: {
+//                   enabled: false
+//                 },
 
-              title: {
-                  text: 'Recovery Risk',
-                  align: 'center'
-              },
-              xAxis: {
-                  categories: [' '],
-                  title: {
-                      text: null
-                  },
-                  gridLineWidth: 1,
-                  lineWidth: 1
-              },
-              yAxis: {
-                  min: 0,
-                  title: {
-                      text: ' ',
-                      align: 'high'
-                  },
-                  labels: {
-                      overflow: 'justify'
-                  },
-                  gridLineWidth: 1
-              },
-              plotOptions: {
-                  bar: {
-                      borderRadius: '50%',
-                      dataLabels: {
-                          enabled: true
-                      },
-                      groupPadding: 0.1,
-                      animation: true
+//               title: {
+//                   text: 'Recovery Risk',
+//                   align: 'center'
+//               },
+//               xAxis: {
+//                   categories: [' '],
+//                   title: {
+//                       text: null
+//                   },
+//                   gridLineWidth: 1,
+//                   lineWidth: 1
+//               },
+//               yAxis: {
+//                   min: 0,
+//                   title: {
+//                       text: ' ',
+//                       align: 'high'
+//                   },
+//                   labels: {
+//                       overflow: 'justify'
+//                   },
+//                   gridLineWidth: 1
+//               },
+//               plotOptions: {
+//                   bar: {
+//                       borderRadius: '50%',
+//                       dataLabels: {
+//                           enabled: true
+//                       },
+//                       groupPadding: 0.1,
+//                       animation: true
 
-                  }
-              },
-              legend: {
-                  // layout: 'vertical',
-                  // align: 'right',
-                  // verticalAlign: 'top',
-                  // x: 0,
-                  // y: 40,
-                  // floating: false,
-                  // borderWidth: 1,
-                  // backgroundColor:
-                  //     Highcharts.defaultOptions.legend.backgroundColor || '#FFFFFF',
-                  // shadow: true
-                  enabled: false
-              },
-              credits: {
-                  enabled: false
-              },
-              series:this.bar_chart.map(x => ({
-  name: x.name,
-  data: [ parseFloat(((this.user_bet * (this.increase_num ** parseInt(x.name)))).toFixed(4))]
-})),
-              exporting: {
-                enabled: false
-              }
-          });
+//                   }
+//               },
+//               legend: {
+//                   // layout: 'vertical',
+//                   // align: 'right',
+//                   // verticalAlign: 'top',
+//                   // x: 0,
+//                   // y: 40,
+//                   // floating: false,
+//                   // borderWidth: 1,
+//                   // backgroundColor:
+//                   //     Highcharts.defaultOptions.legend.backgroundColor || '#FFFFFF',
+//                   // shadow: true
+//                   enabled: false
+//               },
+//               credits: {
+//                   enabled: false
+//               },
+//               series:this.bar_chart.map(x => ({
+//   name: x.name,
+//   data: [ parseFloat(((this.user_bet * (this.increase_num ** parseInt(x.name)))).toFixed(4))]
+// })),
+//               exporting: {
+//                 enabled: false
+//               }
+//           });
 
-          this.loading_pyodide = false;
+//           this.loading_pyodide = false;
 
-      })
+//       })
           })
           .finally(() => {
             // always executed

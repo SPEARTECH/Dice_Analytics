@@ -204,13 +204,13 @@ def simulate():
     from python_modules import run_python
 
     # # Parse and convert input data
-    # number = float(request.json['number'])
-    # winnings = float(request.json['winnings'])
-    # increase = float(request.json['increase'])
-    # user_bet = float(request.json['user_bet'])
-    # rolls = int(request.json['rolls'])
-    # recovery_rolls = int(request.json['recovery_rolls'])
-    # max_losing_streak = int(request.json['max_losing_streak'])
+    user_bet = float(request.json['user_bet'])
+    number = float(request.json['number'])
+    winnings = float(request.json['winnings'])
+    increase = float(request.json['increase'])
+    rolls = int(request.json['rolls'])
+    recovery_rolls = int(request.json['recovery_rolls'])
+    max_losing_streak = int(request.json['max_losing_streak'])
 
     # # Use the correctly typed variables in the function call
     # return run_python.main(    
@@ -223,15 +223,49 @@ def simulate():
     #     max_losing_streak,
     # )
 
-    return run_python.main(    
-        request.json['number'],
-        request.json['winnings'],
-        request.json['increase'],
-        request.json['user_bet'],
-        request.json['rolls'],
-        request.json['recovery_rolls'],
-        request.json['max_losing_streak'],
-)
+#     return run_python.main(    
+#         request.json['number'],
+#         request.json['winnings'],
+#         request.json['increase'],
+#         request.json['user_bet'],
+#         request.json['rolls'],
+#         request.json['recovery_rolls'],
+#         request.json['max_losing_streak'],
+# )
+
+    from ctypes import cdll, c_char_p, c_int, c_double
+
+    # Load the shared library
+    go_module = cdll.LoadLibrary('./go_modules/go_module.so')
+
+    # Call the Go function and decode the returned bytes to a string
+    go_module.Calculate_go.argtypes = [
+        c_double, # user_bet,
+        c_double, # number,
+        c_double, # winnings,
+        c_double, # increase,
+        c_int, # rolls,
+        c_int, # recovery_rolls,
+        c_int # max_losing_streak 
+    ]
+
+    # Define the return type of the function
+    go_module.Calculate_go.restype = c_char_p
+
+    result = go_module.Calculate_go(    
+        user_bet,
+        number,
+        winnings,
+        increase,
+        rolls,
+        recovery_rolls,
+        max_losing_streak 
+    ).decode('utf-8')
+
+    # return result
+
+
+
     # # Get the data from the request
     # # data = request.json.get('data') # for POST requests with data
     # number = request.json['number']
@@ -244,41 +278,58 @@ def simulate():
 
     # # Perform data processing
 
+    import json
     # data, stats, streaks = calculate(user_bet, number, winnings, increase, rolls, recovery_rolls, max_losing_streak)
+    # print(json.loads(result))
+    try:
+        data = json.loads(result)['chart']
+    except json.JSONDecodeError as e:
+        print("Failed to decode JSON:", e)
+        print("Original JSON string:", result)
+        return "Error: Failed to parse JSON from Go module"
+    stats = json.loads(result)['stats']
+    # print(stats)
+    streaks = json.loads(result)['streaks']
+    # print(streaks)
 
-    # bar_dict = {}
-    # for item in streaks:
-    #     if item in bar_dict:
-    #         bar_dict[item] = [bar_dict[item][0] + 1]
-    #     else:
-    #         bar_dict[item] = [1]
+    bar_dict = {}
+    for item in streaks:
+        if item in bar_dict:
+            bar_dict[item] = [bar_dict[item][0] + 1]
+        else:
+            bar_dict[item] = [1]
 
-    # bar_dict = dict(sorted(bar_dict.items()))
-    # del bar_dict[0]
+    bar_dict = dict(sorted(bar_dict.items()))
+    # print(bar_dict)
+    try:
+        del bar_dict[0]
+    except Exception as e:
+        pass
 
-    # bar_chart = []
-    # streak_values = {}
-    # for field in bar_dict:
-    #     bar_chart.append({'name':str(field),'data':bar_dict[field]})
-    #     count = 0
-    #     streak_values[field] = []
-    #     for item in streaks:
-    #         if item == field:
-    #             streak_values[item].append(count)
-    #             count = 0
-    #         count += 1
-    #         # if count > len(streaks):
-    #         #     streak_values[item].append(count)
-    #         #     count = 0
+    bar_chart = []
+    streak_values = {}
+    for field in bar_dict:
+        bar_chart.append({'name':str(field),'data':bar_dict[field]})
+        count = 0
+        streak_values[field] = []
+        for item in streaks:
+            if item == field:
+                streak_values[item].append(count)
+                count = 0
+            count += 1
+            # if count > len(streaks):
+            #     streak_values[item].append(count)
+            #     count = 0
+    # print(bar_chart)
 
+    streak_distance = []
+    for item in streak_values:
+        streak_distance.append({'name':str(item),'data':[round(sum(streak_values[item]), 4)]})
 
-    # streak_distance = []
-    # for item in streak_values:
-    #     streak_distance.append({'name':str(item),'data':[round(sum(streak_values[item]) / len(streak_values[item]), 4)]})
-
-    # # Return the modified data as JSON
-    # # return jsonify({'chart': data,'stats':stats, 'bar_chart': bar_chart, 'streak_distance': streak_distance})
-    # return json.dumps({'chart': data,'stats':stats, 'bar_chart': bar_chart, 'streak_distance': streak_distance})
+    # print(streak_distance)
+    # Return the modified data as JSON
+    # return jsonify({'chart': data,'stats':stats, 'bar_chart': bar_chart, 'streak_distance': streak_distance})
+    return json.dumps({'chart': data,'stats':stats, 'bar_chart': bar_chart, 'streak_distance': streak_distance})
 
 # import server_cython
 # import os

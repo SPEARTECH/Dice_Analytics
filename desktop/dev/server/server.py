@@ -329,6 +329,57 @@ def simulate():
         request.json['recovery_rolls'],
         request.json['max_losing_streak'],
 )
+    from python_modules import run_python
+
+    # # Parse and convert input data
+    user_bet = float(request.json['user_bet'])
+    number = float(request.json['number'])
+    winnings = float(request.json['winnings'])
+    increase = float(request.json['increase'])
+    rolls = int(request.json['rolls'])
+    recovery_rolls = int(request.json['recovery_rolls'])
+    max_losing_streak = int(request.json['max_losing_streak'])
+
+    from ctypes import cdll, c_char_p, c_int, c_double
+
+    # Load the shared library
+    go_module = cdll.LoadLibrary('./go_modules/go_module.so')
+
+    # Call the Go function and decode the returned bytes to a string
+    go_module.Calculate_go.argtypes = [
+        c_double, # user_bet,
+        c_double, # number,
+        c_double, # winnings,
+        c_double, # increase,
+        c_int, # rolls,
+        c_int, # recovery_rolls,
+        c_int # max_losing_streak 
+    ]
+
+    # Define the return type of the function
+    go_module.Calculate_go.restype = c_char_p
+
+    # result = go_module.Calculate_go(    
+    #     user_bet,
+    #     number,
+    #     winnings,
+    #     increase,
+    #     rolls,
+    #     recovery_rolls,
+    #     max_losing_streak 
+    # ).decode('utf-8')
+
+    # return result
+
+    data, stats, streaks = go_module.Calculate_go(    
+        user_bet,
+        number,
+        winnings,
+        increase,
+        rolls,
+        recovery_rolls,
+        max_losing_streak 
+    ).decode('utf-8')
 
     # # Get the data from the request
     # data = request.json.get('data') # for POST requests with data
@@ -353,7 +404,7 @@ def simulate():
 
     # bar_dict = dict(sorted(bar_dict.items()))
     # del bar_dict[0]
-
+ 
     # bar_chart = []
     # streak_values = {}
     # for field in bar_dict:
